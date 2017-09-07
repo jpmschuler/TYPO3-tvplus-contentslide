@@ -29,7 +29,7 @@ module.exports = function(grunt) {
     gitcommit : {
       versionfiles : {
         options : {
-          message : '[TASK] push version to prerelease'
+          message : '[TASK] push version to ' + pkgJson.version
         },
         files : {
           src : [ '*.*', 'Classes/*' ]
@@ -37,7 +37,7 @@ module.exports = function(grunt) {
       },
       everything : {
         options : {
-          message : 'adding files for v' + pkgJson.version
+          message : 'adding files for ' + pkgJson.version
         },
         files : {
           src : [ '*.*', 'Classes/*' ]
@@ -58,6 +58,9 @@ module.exports = function(grunt) {
           maxBuffer : Infinity
         }
       }
+    },
+    readpkg : {
+      default : {}
     }
   });
 
@@ -66,6 +69,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-phplint");
   grunt.loadNpmTasks("grunt-shell");
   grunt.loadNpmTasks("grunt-version");
+  
+  grunt.registerMultiTask('readpkg', 'Read in the package.json file', function() {
+
+    var pkgJson = require('./package.json');
+
+});
 
   grunt.registerTask('default', [ 'test' ]);
   grunt.registerTask('test', [ 'phplint', 'jsonlint' ]);
