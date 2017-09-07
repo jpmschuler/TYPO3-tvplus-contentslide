@@ -1,8 +1,9 @@
 module.exports = function(grunt) {
 
-  var pkgJson = require('./package.json');
 
   grunt.initConfig({
+
+    pkg: grunt.file.readJSON('package.json'),
     phplint : {
       good : [ "**/*.php" ]
     },
@@ -29,7 +30,7 @@ module.exports = function(grunt) {
     gitcommit : {
       versionfiles : {
         options : {
-          message : '[TASK] push version to ' + pkgJson.version
+          message : '[TASK] push version to <%= pkg.version %>'
         },
         files : {
           src : [ '*.*', 'Classes/*' ]
@@ -37,7 +38,7 @@ module.exports = function(grunt) {
       },
       everything : {
         options : {
-          message : 'adding files for ' + pkgJson.version
+          message : 'adding files for <%= pkg.version %>'
         },
         files : {
           src : [ '*.*', 'Classes/*' ]
@@ -61,6 +62,9 @@ module.exports = function(grunt) {
     },
     readpkg : {
       default : {}
+    },
+    writeversion : {
+      default : {}
     }
   });
 
@@ -72,14 +76,15 @@ module.exports = function(grunt) {
   
   grunt.registerMultiTask('readpkg', 'Read in the package.json file', function() {
 
-    var pkgJson = require('./package.json');
+    grunt.config.set('pkg', grunt.file.readJSON('./package.json'));
 
 });
+
 
   grunt.registerTask('default', [ 'test' ]);
   grunt.registerTask('test', [ 'phplint', 'jsonlint' ]);
   grunt.registerTask('build', [ 'test' ]);
   grunt.registerTask('flowpublish', [ 'shell:flowpublish' ]);
-  grunt.registerTask('release', [ 'version::patch', 'readpkg','gitcommit:versionfiles', 'build', 'flowpublish', 'version::prerelease', 'readpkg','gitcommit:versionfiles' ]);
+  grunt.registerTask('release', [ 'version::patch','readpkg','gitcommit:versionfiles', 'build', 'flowpublish', 'version::prerelease', 'readpkg','gitcommit:versionfiles' ]);
   grunt.registerTask('upload', [ 'gitcommit:everything', 'gitpush' ]);
 };
