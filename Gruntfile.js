@@ -80,6 +80,6 @@ module.exports = function(grunt) {
   grunt.registerTask('test', [ 'phplint', 'jsonlint' ]);
   grunt.registerTask('build', [ 'test' ]);
   grunt.registerTask('flowpublish', [ 'shell:flowpublish' ]);
-  grunt.registerTask('release', [ 'version::patch', 'gitcommit:versionfiles', 'build', 'flowpublish', 'version::prerelease', 'gitcommit:versionfiles' ]);
+  grunt.registerTask('release', [ 'version::patch', 'readpkg','gitcommit:versionfiles', 'build', 'flowpublish', 'version::prerelease', 'readpkg','gitcommit:versionfiles' ]);
   grunt.registerTask('upload', [ 'gitcommit:everything', 'gitpush' ]);
 };
