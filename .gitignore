@@ -1,3 +1,31 @@
-node_modules
+###################
+# project specific
+###################
+# OS
+###################
+.DS_Store
+.DS_Store?
+._*
 .project
-.settings
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+###################
+# node/grunt
+###################
+node_modules
+grunt/mydeployment.sh
+###################
+# eclipse
+###################
+**/.settings
+**/.cache
+**/.externalToolBuilders
+**/.project
+**/.buildpath
+###################
+# sonar
+###################
+target
+.sonar
