@@ -1,6 +1,6 @@
 {
 	"name": "jpmschuler/tvplus-contentslide",
-	"version": "1.0.3",
+	"version": "1.0.6",
 	"type": "typo3-cms-extension",
 	"description": "This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus",
 	"authors": [
@@ -18,7 +18,7 @@
 		"typo3/cms-core": ">=6.2.0 <=7.6.99"
 	},
 	"replace": {
-		"tvplus-contentslide": "self.version",
+		"tvplus_contentslide": "self.version",
 		"typo3-ter/tvplus-contentslide": "self.version"
 	},
 	"autoload": {
