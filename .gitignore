@@ -29,3 +29,8 @@ grunt/mydeployment.sh
 ###################
 target
 .sonar
+#######
+# TER
+#######
+TER-releases
+.idea
