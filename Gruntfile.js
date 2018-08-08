@@ -31,18 +31,19 @@ module.exports = function (grunt) {
         gitcommit: {
             versionfiles: {
                 options: {
-                    message: '[TASK] push version to <%= pkg.version %>'
+                    message: '[TASK] push version to <%= pkg.name %> v<%= pkg.version %>'
                 },
                 files: {
-                    src: ['*.*', 'Classes/*']
+                    src: ['composer.json', 'package.json', 'ext_emconf.php']
                 }
             },
             everything: {
                 options: {
-                    message: 'adding files for <%= pkg.version %>'
+                    message: 'adding changed files not yet committed',
+                    allowEmpty: true
                 },
                 files: {
-                    src: ['*.*', 'Classes/*']
+                    src: ['.']
                 }
             }
         },
