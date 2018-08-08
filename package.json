@@ -1,21 +1,20 @@
 {
-	"name": "tvplus-contentslide",
-	"version": "1.0.6",
-	"type": "typo3-cms-extension",
-	"description": "This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus",
-	"homepage": "",
-	"license": "GPL-2.0+",
-	"author": "j.peter.m.schuler@uni-due.de",
-	"dependencies": {
-		"grunt": "~1.0",
-		"grunt-cli": "~1.2",
-        "grunt-git": "~1.0",
-        "grunt-phplint": "~0.1",
-        "grunt-jsonlint": "~1.1",
-        "grunt-shell": "~2.1",
-        "grunt-version": "~1.1"
-	},
-	"devDependencies": {
-		
-	}
+  "name": "tvplus-contentslide",
+  "version": "1.1.3",
+  "type": "typo3-cms-extension",
+  "description": "This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus",
+  "homepage": "",
+  "license": "GPL-2.0+",
+  "author": "j.peter.m.schuler@uni-due.de",
+  "dependencies": {
+    "grunt": "~1.0",
+    "grunt-cli": "~1.2",
+    "grunt-git": "~1.0",
+    "grunt-jsonlint": "~1.1",
+    "grunt-phplint": "~0.1",
+    "grunt-shell": "~2.1",
+    "grunt-version": "^1.2.1",
+    "semver": "^5.4.1",
+    "grunt-contrib-watch": "^1.0.0"
+  }
 }
