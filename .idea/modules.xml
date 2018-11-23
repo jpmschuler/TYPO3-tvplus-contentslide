@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/TYPO3-tvplus-contentslide.iml" filepath="$PROJECT_DIR$/.idea/TYPO3-tvplus-contentslide.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/tvplus-contentslide.iml" filepath="$PROJECT_DIR$/.idea/tvplus-contentslide.iml" />
     </modules>
   </component>
 </project>
