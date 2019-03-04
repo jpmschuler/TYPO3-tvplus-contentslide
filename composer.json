@@ -18,8 +18,12 @@
 		"typo3/cms-core": "^8.7"
 	},
 	"replace": {
-		"tvplus_contentslide": "self.version",
 		"typo3-ter/tvplus-contentslide": "self.version"
+	},
+	"extra": {
+		"typo3/cms": {
+			"extension-key": "tvplus_contentslide"
+		}
 	},
 	"autoload": {
 		"psr-4": {
