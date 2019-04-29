@@ -15,7 +15,7 @@
 		"GPL-2.0+"
 	],
 	"require": {
-		"typo3/cms-core": "^8.7"
+		"typo3/cms-core": "^8.7 || ^9.5"
 	},
 	"replace": {
 		"typo3-ter/tvplus-contentslide": "self.version"
