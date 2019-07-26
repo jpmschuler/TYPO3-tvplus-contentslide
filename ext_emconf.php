@@ -44,9 +44,7 @@ $EM_CONF['tvplus_contentslide'] = [
     'constraints' => [
         'depends' => [
             'php' => '5.2.0-0.0.0',
-            'typo3' => '8.7.0-8.7.99'
-        ],
-        'conflicts' => [],
-        'suggests' => []
+            'typo3' => '8.7.0-9.5.99'
+        ]
     ]
 ];
