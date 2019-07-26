@@ -10,7 +10,7 @@ namespace Jpmschuler\TvplusContentslide;
  *  (c) 2004-2014 Bernhard Kraft (kraftb@think-open.at)
  *
  *  Current maintainer:
- *  (c) 2016-2018 J. Peter M. Schuler (j.peter.m.schuler@uni-due.de)
+ *  (c) 2016-2019 J. Peter M. Schuler (j.peter.m.schuler@uni-due.de)
  *
  *  All rights reserved
  *
