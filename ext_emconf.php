@@ -33,7 +33,7 @@ $EM_CONF['tvplus_contentslide'] = [
     'title' => 'TemplaVoila Plus: Content Slide',
     'description' => 'This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus',
     'category' => 'plugin',
-    'version' => '2.0.0',
+    'version' => '2.0.1',
     'state' => 'stable',
     'uploadfolder' => false,
     'createDirs' => '',
@@ -44,9 +44,7 @@ $EM_CONF['tvplus_contentslide'] = [
     'constraints' => [
         'depends' => [
             'php' => '5.2.0-0.0.0',
-            'typo3' => '8.7.0-8.7.99'
-        ],
-        'conflicts' => [],
-        'suggests' => []
+            'typo3' => '8.7.0-9.5.99'
+        ]
     ]
 ];

@@ -1,29 +1,33 @@
 {
-	"name": "jpmschuler/tvplus-contentslide",
-	"version": "2.0.0",
-	"type": "typo3-cms-extension",
-	"description": "This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus",
-	"authors": [
-		{
-			"name": "J. Peter M. Schuler",
-			"email": "j.peter.m.schuler@uni-due.de",
-			"role": "Developer"
-		}
-	],
-	"homepage": "",
-	"license": [
-		"GPL-2.0+"
-	],
-	"require": {
-		"typo3/cms-core": "^8.7"
-	},
-	"replace": {
-		"tvplus_contentslide": "self.version",
-		"typo3-ter/tvplus-contentslide": "self.version"
-	},
-	"autoload": {
-		"psr-4": {
-			"Jpmschuler\\TvplusContentslide\\": "Classes/"
-		}
-	}
+  "name": "jpmschuler/tvplus-contentslide",
+  "version": "2.1.1-alpha.2",
+  "type": "typo3-cms-extension",
+  "description": "This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus",
+  "authors": [
+    {
+      "name": "J. Peter M. Schuler",
+      "email": "j.peter.m.schuler@uni-due.de",
+      "role": "Developer"
+    }
+  ],
+  "homepage": "",
+  "license": [
+    "GPL-2.0+"
+  ],
+  "require": {
+    "typo3/cms-core": "^8.7 || ^9.5"
+  },
+  "replace": {
+    "typo3-ter/tvplus-contentslide": "self.version"
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "tvplus_contentslide"
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "Jpmschuler\\TvplusContentslide\\": "Classes/"
+    }
+  }
 }
