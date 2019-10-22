@@ -12,18 +12,13 @@
 ehthumbs.db
 Thumbs.db
 ###################
-# node/grunt
+# build tools / IDE
 ###################
 node_modules
-grunt/mydeployment.sh
-###################
-# eclipse
-###################
-**/.settings
-**/.cache
-**/.externalToolBuilders
-**/.project
-**/.buildpath
+.idea
+.deploy.sh
+vendor
+.Build
 ###################
 # sonar
 ###################
@@ -33,6 +28,3 @@ target
 # TER
 #######
 TER-releases
-.idea
-.deploy.sh
-vendor
