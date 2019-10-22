@@ -35,3 +35,4 @@ target
 TER-releases
 .idea
 .deploy.sh
+vendor
