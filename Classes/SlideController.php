@@ -148,7 +148,10 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     protected function getPageFlexValue($page, $field)
     {
         $xml = GeneralUtility::xml2array($page['tx_templavoilaplus_flex']);
-        $ds = BackendUtility::getFlexFormDS($GLOBALS['TCA']['pages']['columns']['tx_templavoilaplus_flex']['config'], $page, 'pages', 'tx_templavoilaplus_flex');
+        $flexFormTools = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools::class);
+        $ds = $flexFormTools->parseDataStructureByIdentifier($flexFormTools->getDataStructureIdentifier($GLOBALS['TCA']['pages']['columns']['tx_templavoilaplus_flex'], 'pages', 'tx_templavoilaplus_flex', $page));
+
+
         if (is_array($ds) && is_array($ds['meta'])) {
             $langChildren = (int)$ds['meta']['langChildren'];
             $langDisable = (int)$ds['meta']['langDisable'];
@@ -157,7 +160,7 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
             $langDisable = 0;
         }
         $translatedLanguagesArr = $this->getAvailableLanguages($page['uid']);
-        $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language');
+        $languageAspect = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Context\Context::class)->getAspect('language');
         $tryLang = $languageAspect->getContentId();
         $tryLangArr = $this->languageFallback;
         do {
@@ -210,7 +213,7 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         global $TYPO3_DB, $TCA, $BACK_PATH;
 
         $flagAbsPath = GeneralUtility::getFileAbsFileName($TCA['sys_language']['columns']['flag']['config']['fileFolder']);
-        $flagIconPath = $BACK_PATH . '../' . substr($flagAbsPath, strlen(Environment::getPublicPath()));
+        $flagIconPath = $BACK_PATH . '../' . substr($flagAbsPath, strlen(\TYPO3\CMS\Core\Core\Environment::getPublicPath()));
 
         $output = [];
         $excludeHidden = 'sys_language.hidden=0';
