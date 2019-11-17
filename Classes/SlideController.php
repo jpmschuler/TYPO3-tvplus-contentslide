@@ -148,7 +148,10 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     protected function getPageFlexValue($page, $field)
     {
         $xml = GeneralUtility::xml2array($page['tx_templavoilaplus_flex']);
-        $ds = BackendUtility::getFlexFormDS($GLOBALS['TCA']['pages']['columns']['tx_templavoilaplus_flex']['config'], $page, 'pages', 'tx_templavoilaplus_flex');
+        $flexFormTools = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools::class);
+        $ds = $flexFormTools->parseDataStructureByIdentifier($flexFormTools->getDataStructureIdentifier($GLOBALS['TCA']['pages']['columns'], 'pages', 'tx_templavoilaplus_flex', $page));
+
+
         if (is_array($ds) && is_array($ds['meta'])) {
             $langChildren = (int)$ds['meta']['langChildren'];
             $langDisable = (int)$ds['meta']['langDisable'];
