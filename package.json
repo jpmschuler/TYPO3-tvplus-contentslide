@@ -1,6 +1,6 @@
 {
   "name": "tvplus-contentslide",
-  "version": "9.0.1-alpha.1",
+  "version": "9.0.1",
   "type": "typo3-cms-extension",
   "description": "This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus",
   "homepage": "",
@@ -25,8 +25,7 @@
     "postversion:patch": "npm run version:copy",
     "version:prerelease": "npm --no-git-tag-version version prerelease --preid=alpha",
     "postversion:prerelease": "npm run version:copy",
-    "version:copy": "npm run version:copy:package.json:composer.json && npm run version:copy:package.json:ext_emconf.php && npm run version:copy:package.json:docsettings",
-    "version:copy:package.json:docsettings": "node -e \"var fs = require('fs');var contents = fs.readFileSync('Documentation/Settings.cfg', 'utf8');contents=contents.replace(/release = [^\\n]+\\n/g,'release = '+require('./package.json').version+'\\n'); fs.writeFile('./Documentation/Settings.cfg',contents,function (err) {});\"",
+    "version:copy": "npm run version:copy:package.json:composer.json && npm run version:copy:package.json:ext_emconf.php",
     "version:copy:package.json:ext_emconf.php": "node -e \"var fs = require('fs');var contents = fs.readFileSync('ext_emconf.php', 'utf8');contents=contents.replace(/'version' => '[^']+',/g,'\\'version\\' => \\''+require('./package.json').version+'\\',');fs.writeFile('./ext_emconf.php',contents,function (err) {});\" && phplint -s ext_emconf.php",
     "version:copy:package.json:composer.json": "node -e \"var fs = require('fs');var file = require('./composer.json'); file.version='v'+ require('./package.json').version; fs.writeFile('./composer.json',JSON.stringify(file),function (err) {});\" && jsonlint -i  ./composer.json ",
     "lint:phplint": "phplint -s '**/*.php'  '!vendor/**'  '!node_modules/**'",
