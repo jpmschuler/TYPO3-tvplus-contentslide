@@ -14,13 +14,15 @@
     "GPL-2.0+"
   ],
   "require": {
-    "typo3/cms-core": "^8.7"
+    "typo3/cms-core": "^9.5",
+    "typo3/cms-backend": "^9.5",
+      "templavoilaplus/templavoilaplus": "*"
   },
   "extra": {
     "typo3/cms": {
       "extension-key": "tvplus_contentslide",
       "cms-package-dir": "{$vendor-dir}/typo3/cms",
-      "web-dir": ".Build/public"
+      "web-dir": "{$vendor-dir}/"
     }
   },
   "autoload": {
