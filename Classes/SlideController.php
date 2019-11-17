@@ -36,6 +36,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
 {
+    public $languageFallback = [];
     public $prefixId = 'SlideController';        // Same as class name
     public $scriptRelPath = 'Classes/SlideController.php';    // Path to this script relative to the extension dir.
     public $extKey = 'tvplus_contentslide';    // The extension key.
@@ -54,27 +55,29 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     {
         if ($conf['overridePage'] || $conf['overridePage.']) {
             $overridePage = $this->cObj->stdWrap($conf['overridePage'], $conf['overridePage.']);
-            $rootLine = $GLOBALS['TSFE']->sys_page->getRootLine($overridePage, $GLOBALS['TSFE']->MP);
+            $rootLineUtility = new RootlineUtility($overridePage, $GLOBALS['TSFE']->MP);
+            $rootLine = $rootLineUtility->get();
         } else {
             $rootLine = $GLOBALS['TSFE']->rootLine;
         }
         $recordsFromTable = trim($this->cObj->stdWrap($conf['table'], $conf['table.']));
-        $reverse = (int) $this->cObj->stdWrap($conf['reverse'], $conf['reverse.']);
-        $innerReverse = (int) $this->cObj->stdWrap($conf['innerReverse'], $conf['innerReverse.']);
+        $reverse = (int)$this->cObj->stdWrap($conf['reverse'], $conf['reverse.']);
+        $innerReverse = (int)$this->cObj->stdWrap($conf['innerReverse'], $conf['innerReverse.']);
         $field = $this->cObj->stdWrap($conf['field'], $conf['field.']);
-        $collect = (int) $this->cObj->stdWrap($conf['collect'], $conf['collect.']);
-        $slide = (int) $this->cObj->stdWrap($conf['slide'], $conf['slide.']);
+        $collect = (int)$this->cObj->stdWrap($conf['collect'], $conf['collect.']);
+        $slide = (int)$this->cObj->stdWrap($conf['slide'], $conf['slide.']);
         if (!$slide) {
             $slide = -1;
         }
-        $languageFallback = $this->cObj->stdWrap($conf['languageFallback'], $conf['languageFallback.']);
-        if (strlen($languageFallback)) {
-            $this->languageFallback = GeneralUtility::intExplode(',', $languageFallback);
+        $tempLanguageFallback = $this->cObj->stdWrap($conf['languageFallback'], $conf['languageFallback.']);
+        if (strlen($tempLanguageFallback)) {
+            $this->languageFallback = GeneralUtility::intExplode(',', $tempLanguageFallback);
         } else {
             $this->languageFallback = [];
         }
         while ($page = array_shift($rootLine)) {
-            $page = $GLOBALS['TSFE']->sys_page->getPage($page['uid']);
+            $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+            $page = $pageRepository->getPage($page['uid']);
             $value = $this->getPageFlexValue($page, $field);
             if ($value && $recordsFromTable) {
                 $value = $this->removeHiddenRecords($value, $recordsFromTable);
@@ -122,7 +125,8 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         $loadDB->start($uidList, $recordTable);
         foreach ($loadDB->tableArray as $table => $tableData) {
             if (is_array($GLOBALS['TCA'][$table])) {
-                $loadDB->additionalWhere[$table] = $this->cObj->enableFields($table);
+                $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+                $loadDB->additionalWhere[$table] = $pageRepository->enableFields($table);
             }
         }
         $loadDB->getFromDB();
@@ -146,14 +150,15 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         $xml = GeneralUtility::xml2array($page['tx_templavoilaplus_flex']);
         $ds = BackendUtility::getFlexFormDS($GLOBALS['TCA']['pages']['columns']['tx_templavoilaplus_flex']['config'], $page, 'pages', 'tx_templavoilaplus_flex');
         if (is_array($ds) && is_array($ds['meta'])) {
-            $langChildren = (int) $ds['meta']['langChildren'];
-            $langDisable = (int) $ds['meta']['langDisable'];
+            $langChildren = (int)$ds['meta']['langChildren'];
+            $langDisable = (int)$ds['meta']['langDisable'];
         } else {
             $langChildren = 0;
             $langDisable = 0;
         }
         $translatedLanguagesArr = $this->getAvailableLanguages($page['uid']);
-        $tryLang = $GLOBALS['TSFE']->sys_language_content;
+        $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language');
+        $tryLang = $languageAspect->getContentId();
         $tryLangArr = $this->languageFallback;
         do {
             if ($langArr = $translatedLanguagesArr[$tryLang]) {
@@ -205,7 +210,7 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         global $TYPO3_DB, $TCA, $BACK_PATH;
 
         $flagAbsPath = GeneralUtility::getFileAbsFileName($TCA['sys_language']['columns']['flag']['config']['fileFolder']);
-        $flagIconPath = $BACK_PATH . '../' . substr($flagAbsPath, strlen(PATH_site));
+        $flagIconPath = $BACK_PATH . '../' . substr($flagAbsPath, strlen(Environment::getPublicPath()));
 
         $output = [];
         $excludeHidden = 'sys_language.hidden=0';
@@ -244,11 +249,12 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         }
 
         while (is_array($row = $TYPO3_DB->sql_fetch_assoc($res))) {
-            $GLOBALS['TSFE']->sys_page->versionOL('sys_language', $row);
+            $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+            $pageRepository->versionOL('sys_language', $row);
             $output[$row['uid']] = $row;
 
             if ($staticLanguageUid = ((int)$row['static_lang_isocode'])) {
-                $staticLangRow = $GLOBALS['TSFE']->sys_page->getRawRecord('static_languages', $staticLanguageUid, 'lg_iso_2');
+                $staticLangRow = $pageRepository->getRawRecord('static_languages', $staticLanguageUid, 'lg_iso_2');
                 if ($staticLangRow['lg_iso_2']) {
                     $output[$row['uid']]['ISOcode'] = $staticLangRow['lg_iso_2'];
                 }
