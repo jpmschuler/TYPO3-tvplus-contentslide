@@ -30,7 +30,7 @@
  ***************************************************************/
 
 $EM_CONF['tvplus_contentslide'] = [
-    'title' => 'TemplaVoila Plus: Content Slide',
+    'title' => 'TemplaVoilà! Plus: Content Slide',
     'description' => 'This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus',
     'category' => 'plugin',
     'version' => '9.0.1',
