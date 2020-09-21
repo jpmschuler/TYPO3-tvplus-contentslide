@@ -29,3 +29,5 @@ target
 # TER
 #######
 TER-releases
+composer.lock
+package-lock.json
