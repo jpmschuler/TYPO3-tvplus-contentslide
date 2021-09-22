@@ -1,0 +1,8 @@
+parameters:
+    paths:
+      - Classes
+    level: 3
+    bootstrapFiles:
+      - .Build/vendor/autoload.php
+    scanDirectories:
+      - Classes

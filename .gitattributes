@@ -1,0 +1,13 @@
+/.Build export-ignore
+/node_modules export-ignore
+/TER-releases export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/.php-cs-fixer.php export-ignore
+/composer.lock export-ignore
+/package.json export-ignore
+/package.lock export-ignore
+/phpcs.xml export-ignore
+/phpstan.neon export-ignore
+/rector.php export-ignore
+/README.md export-ignore

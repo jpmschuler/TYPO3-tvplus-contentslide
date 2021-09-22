@@ -1,7 +1,5 @@
 <?php
 
-namespace Jpmschuler\TvplusContentslide;
-
 /***************************************************************
  *  Copyright notice
  *
@@ -10,7 +8,7 @@ namespace Jpmschuler\TvplusContentslide;
  *  (c) 2004-2014 Bernhard Kraft (kraftb@think-open.at)
  *
  *  Current maintainer:
- *  (c) 2016-2019 J. Peter M. Schuler (j.peter.m.schuler@uni-due.de)
+ *  (c) 2016-2021 J. Peter M. Schuler (j.peter.m.schuler@uni-due.de)
  *
  *  All rights reserved
  *
@@ -31,15 +29,23 @@ namespace Jpmschuler\TvplusContentslide;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+namespace Jpmschuler\TvplusContentslide;
 
-class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
+use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Database\RelationHandler;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\RootlineUtility;
+use TYPO3\CMS\Frontend\Page\PageRepository;
+use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
+
+class SlideController extends AbstractPlugin
 {
     public $languageFallback = [];
-    public $prefixId = 'SlideController';        // Same as class name
-    public $scriptRelPath = 'Classes/SlideController.php';    // Path to this script relative to the extension dir.
-    public $extKey = 'tvplus_contentslide';    // The extension key.
+    public $prefixId = 'SlideController';
+    public $scriptRelPath = 'Classes/SlideController.php';
+    public $extKey = 'tvplus_contentslide';
     public $pi_checkCHash = true;
 
     /**
@@ -48,14 +54,19 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      * which has this value set.
      *
      * @param string $content : The already set content
-     * @param array $conf : The configuration of the plugin
+     * @param array  $conf    : The configuration of the plugin
+     *
      * @return string The content elements as comma separated list as required by RECORDS
      */
     public function main($content, $conf)
     {
         if ($conf['overridePage'] || $conf['overridePage.']) {
             $overridePage = $this->cObj->stdWrap($conf['overridePage'], $conf['overridePage.']);
-            $rootLineUtility = new RootlineUtility($overridePage, $GLOBALS['TSFE']->MP);
+            $rootLineUtility = GeneralUtility::makeInstance(
+                RootlineUtility::class,
+                $overridePage,
+                $GLOBALS['TSFE']->MP
+            );
             $rootLine = $rootLineUtility->get();
         } else {
             $rootLine = $GLOBALS['TSFE']->rootLine;
@@ -75,8 +86,8 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         } else {
             $this->languageFallback = [];
         }
-        while ($page = array_shift($rootLine)) {
-            $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+        foreach($rootLine as $page) {
+            $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
             $page = $pageRepository->getPage($page['uid']);
             $value = $this->getPageFlexValue($page, $field);
             if ($value && $recordsFromTable) {
@@ -112,6 +123,7 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      * This method removes hidden or disabled content elements from the list.
      *
      * @param string $value : A list of content element uids to check
+     *
      * @return string A list of remaining valid content elements
      */
     protected function removeHiddenRecords($value, $recordTable)
@@ -120,12 +132,12 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         $uidList = implode(',', $uids);
         $result = '';
 
-        $loadDB = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\RelationHandler::class);
+        $loadDB = GeneralUtility::makeInstance(RelationHandler::class);
         $loadDB->setFetchAllFields(true);
         $loadDB->start($uidList, $recordTable);
         foreach ($loadDB->tableArray as $table => $tableData) {
             if (is_array($GLOBALS['TCA'][$table])) {
-                $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+                $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
                 $loadDB->additionalWhere[$table] = $pageRepository->enableFields($table);
             }
         }
@@ -141,16 +153,23 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * This method returns the contents of the flex-field given.
      *
-     * @param array $page : The page row from which to retrieve the flex field value
+     * @param array  $page  : The page row from which to retrieve the flex field value
      * @param string $field : The field name in the flex XML
+     *
      * @return string The contents of the field
      */
     protected function getPageFlexValue($page, $field)
     {
         $xml = GeneralUtility::xml2array($page['tx_templavoilaplus_flex']);
-        $flexFormTools = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools::class);
-        $ds = $flexFormTools->parseDataStructureByIdentifier($flexFormTools->getDataStructureIdentifier($GLOBALS['TCA']['pages']['columns']['tx_templavoilaplus_flex'], 'pages', 'tx_templavoilaplus_flex', $page));
-
+        $flexFormTools = GeneralUtility::makeInstance(FlexFormTools::class);
+        $ds = $flexFormTools->parseDataStructureByIdentifier(
+            $flexFormTools->getDataStructureIdentifier(
+                $GLOBALS['TCA']['pages']['columns']['tx_templavoilaplus_flex'],
+                'pages',
+                'tx_templavoilaplus_flex',
+                $page
+            )
+        );
 
         if (is_array($ds) && is_array($ds['meta'])) {
             $langChildren = (int)$ds['meta']['langChildren'];
@@ -160,31 +179,41 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
             $langDisable = 0;
         }
         $translatedLanguagesArr = $this->getAvailableLanguages($page['uid']);
-        $languageAspect = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Context\Context::class)->getAspect('language');
+        $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language');
         $tryLang = $languageAspect->getContentId();
         $tryLangArr = $this->languageFallback;
-        do {
-            if ($langArr = $translatedLanguagesArr[$tryLang]) {
+        foreach ($tryLangArr as $tryLang) {
+            $langArr = $translatedLanguagesArr[$tryLang];
+            if ($langArr) {
                 $lKey = $langDisable ? 'lDEF' : ($langChildren ? 'lDEF' : 'l' . $langArr['ISOcode']);
                 $vKey = $langDisable ? 'vDEF' : ($langChildren ? 'v' . $langArr['ISOcode'] : 'vDEF');
             } else {
                 $lKey = 'lDEF';
                 $vKey = 'vDEF';
             }
-            $value = '';
-            if (is_array($xml) && is_array($xml['data']) && is_array($xml['data']['sDEF']) && is_array($xml['data']['sDEF'][$lKey])) {
-                $value = $this->getSubKey($xml['data']['sDEF'][$lKey], GeneralUtility::trimExplode(',', $field, 1), $vKey);
+            if (
+                is_array($xml)
+                && is_array($xml['data'])
+                && is_array($xml['data']['sDEF'])
+                && is_array($xml['data']['sDEF'][$lKey])
+            ) {
+                return $this->getSubKey(
+                    $xml['data']['sDEF'][$lKey],
+                    GeneralUtility::trimExplode(',', $field, 1),
+                    $vKey
+                );
             }
-        } while (($value === '') && strlen($tryLang = array_shift($tryLangArr)));
-        return $value;
+        }
+        return '';
     }
 
     /**
      * Returns a value of a flex field and if necessary calls itself recursively
      *
-     * @param array $arr : The flex XML data array from which to return the requested value
-     * @param array $keys : Contains the key/path into the flex XML data array which to return
+     * @param array  $arr  : The flex XML data array from which to return the requested value
+     * @param array  $keys : Contains the key/path into the flex XML data array which to return
      * @param string $vKey : The language value which should get returned (i.e. vDEF, vDE, vPT, etc.)
+     *
      * @return string The contents of the field
      */
     public function getSubKey($arr, $keys, $vKey)
@@ -202,25 +231,28 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * Generates an array of available languages
      *
-     * @param int $id : The page for which to return available languages. If passed only languages for available translations will get returned.
+     * @param int  $id           : The page for which to return available languages. If passed only languages for
+     *                           available translations will get returned.
      * @param bool $onlyIsoCoded : Will only return a language if it has its "ISOcode" field set
-     * @param bool $setDefault : When TRUE the default language "0" (lDEF/vDEF) will get included in the result
-     * @param bool $setMulti : When TRUE the multiple languages config "-1" (lDEF/vDEF) will get included in the result
+     * @param bool $setDefault   : When TRUE the default language "0" (lDEF/vDEF) will get included in the result
+     * @param bool $setMulti     : When TRUE the multiple languages config "-1" (lDEF/vDEF) will get included in the
+     *                           result
+     *
      * @return array All available languages (on the passed page id)
      */
     public function getAvailableLanguages($id = 0, $onlyIsoCoded = true, $setDefault = true, $setMulti = false)
     {
-        global $TYPO3_DB, $TCA, $BACK_PATH;
-
-        $flagAbsPath = GeneralUtility::getFileAbsFileName($TCA['sys_language']['columns']['flag']['config']['fileFolder']);
-        $flagIconPath = $BACK_PATH . '../' . substr($flagAbsPath, strlen(\TYPO3\CMS\Core\Core\Environment::getPublicPath()));
+        $flagAbsPath = GeneralUtility::getFileAbsFileName(
+            $GLOBALS['TCA']['sys_language']['columns']['flag']['config']['fileFolder']
+        );
+        $flagIconPath = $GLOBALS['BACK_PATH'] . '../' . substr($flagAbsPath, strlen(Environment::getPublicPath()));
 
         $output = [];
         $excludeHidden = 'sys_language.hidden=0';
 
         if ($id) {
             $excludeHidden .= ' AND pages.deleted=0';
-            $res = $TYPO3_DB->exec_SELECTquery(
+            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                 'DISTINCT sys_language.*',
                 'pages,sys_language',
                 'pages.sys_language_uid=sys_language.uid AND pages.pid=' . ((int)$id) . ' AND ' . $excludeHidden,
@@ -228,7 +260,7 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
                 'sys_language.title'
             );
         } else {
-            $res = $TYPO3_DB->exec_SELECTquery(
+            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
                 'sys_language.*',
                 'sys_language',
                 $excludeHidden,
@@ -251,19 +283,21 @@ class SlideController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
             ];
         }
 
-        while (is_array($row = $TYPO3_DB->sql_fetch_assoc($res))) {
-            $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+        while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+            $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
             $pageRepository->versionOL('sys_language', $row);
             $output[$row['uid']] = $row;
 
-            if ($staticLanguageUid = ((int)$row['static_lang_isocode'])) {
+            $staticLanguageUid = (int)$row['static_lang_isocode'];
+            if ($staticLanguageUid) {
                 $staticLangRow = $pageRepository->getRawRecord('static_languages', $staticLanguageUid, 'lg_iso_2');
                 if ($staticLangRow['lg_iso_2']) {
                     $output[$row['uid']]['ISOcode'] = $staticLangRow['lg_iso_2'];
                 }
             }
             if ($row['flag'] !== '') {
-                $output[$row['uid']]['flagIcon'] = @is_file($flagAbsPath . $row['flag']) ? $flagIconPath . $row['flag'] : '';
+                $output[$row['uid']]['flagIcon']
+                    = is_file($flagAbsPath . $row['flag']) ? $flagIconPath . $row['flag'] : '';
             }
 
             if ($onlyIsoCoded && !$output[$row['uid']]['ISOcode']) {
