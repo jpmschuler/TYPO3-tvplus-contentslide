@@ -2,7 +2,7 @@
   "name": "jpmschuler/tvplus-contentslide",
   "type": "typo3-cms-extension",
   "description": "This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus",
-  "version": "v10.0.0-alpha.3",
+  "version": "v10.0.0",
   "license": [
     "GPL-2.0+"
   ],
@@ -14,15 +14,23 @@
     }
   ],
   "require": {
+    "friendsoftypo3/typo3db-legacy": "*",
     "typo3/cms-backend": "*",
     "typo3/cms-core": "^9.5.29 || ^10.4.19",
     "typo3/cms-frontend": "*"
   },
   "require-dev": {
+    "bk2k/configuration-installer": "0.1.1",
+    "camspiers/json-pretty": "^1.0",
     "ergebnis/composer-normalize": "^2.15",
-    "friendsofphp/php-cs-fixer": "^3.1.0",
-    "rector/rector": "^0.11.52",
-    "saschaegerer/phpstan-typo3": "^0.13.3",
+    "friendsofphp/php-cs-fixer": "^v3.1.0",
+    "helmich/typo3-typoscript-lint": "^2.5",
+    "micheh/phpcs-gitlab": "^1.1.0",
+    "michielroos/typo3scan": "*",
+    "nimut/testing-framework": "^6",
+    "rector/rector": "^0.12.5",
+    "roave/security-advisories": "dev-latest",
+    "saschaegerer/phpstan-typo3": "^1",
     "squizlabs/php_codesniffer": "^3.6"
   },
   "config": {
@@ -32,7 +40,11 @@
     "vendor-dir": ".Build/vendor"
   },
   "extra": {
+    "phpstan": {
+      "level": 6
+    },
     "typo3/cms": {
+      "app-dir": ".Build",
       "extension-key": "tvplus_contentslide",
       "web-dir": ".Build/public"
     }
@@ -43,10 +55,58 @@
     }
   },
   "scripts": {
-    "rector": "rector",
+    "codequality": [
+      "@lint:php-cs-fixer",
+      "@lint:all",
+      "@rector:dry-run",
+      "@test:deprecations"
+    ],
+    "codequality:autofix": [
+      "@lint:php-cs-fixer",
+      "@lint:phpcbf",
+      "@rector"
+    ],
+    "lint:all": [
+      "@lint:php",
+      "@lint:php-cs-fixer:dry-run",
+      "@lint:phpcs:dry-run",
+      "@lint:phpstan"
+    ],
+    "lint:php": "find *.php Classes Configuration Tests -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l",
     "lint:php-cs-fixer": "php-cs-fixer fix",
-    "lint:php-cs-fixer:dry-run": "php-cs-fixer fix -v --dry-run --using-cache false --diff --diff-format=udiff",
-    "lint:phpcs": "phpcs Classes",
-    "lint:phpstan": "phpstan analyse"
+    "lint:php-cs-fixer:dry-run": "php-cs-fixer fix --dry-run --using-cache=no --diff",
+    "lint:phpcbf": "phpcbf Classes Configuration Tests",
+    "lint:phpcs": "@lint:phpcbf",
+    "lint:phpcs:dry-run": "phpcs Classes Configuration Tests",
+    "lint:phpcs:dry-run:ci": "phpcs --report=full --report-\\Micheh\\PhpCodeSniffer\\Report\\Gitlab=report.phpcs.json  Classes Configuration Tests",
+    "lint:phpstan": "phpstan --level=$(composer config extra.phpstan.level 2> /dev/null || echo 5) --memory-limit=1G analyse",
+    "lint:phpstan:ci": "phpstan --level=$(composer config extra.phpstan.level 2> /dev/null || echo 5) --memory-limit=1G --no-progress --error-format gitlab analyse > report.phpstan.json",
+    "lint:typoscript": "typoscript-lint",
+    "pretest:deprecations": [
+      "mkdir -p .Build/$(composer config extra.typo3/cms.extension-key)",
+      "rsync -ah --delete --exclude=node_modules --exclude=.* . .Build/$(composer config extra.typo3/cms.extension-key)"
+    ],
+    "rector": "rector process -- .",
+    "rector:dry-run": "rector process --dry-run --  .",
+    "rector:dry-run:ci": "rector process --dry-run --output-format json -- . > report.rector.json",
+    "test": [
+      "@lint:php-cs-fixer"
+    ],
+    "test:deprecations": [
+      "@pretest:deprecations",
+      "typo3scan scan --target 9 -- .Build/$(composer config extra.typo3/cms.extension-key) "
+    ],
+    "test:deprecations:10LTS:ci": [
+      "@pretest:deprecations",
+      "typo3scan scan --target 10 --format junit -- .Build/$(composer config extra.typo3/cms.extension-key) > report.$(composer config extra.typo3/cms.extension-key)-deprecations-10LTS.xml"
+    ],
+    "test:deprecations:9LTS:ci": [
+      "@pretest:deprecations",
+      "typo3scan scan --target 9 --format junit -- .Build/$(composer config extra.typo3/cms.extension-key) > report.$(composer config extra.typo3/cms.extension-key)-deprecations-9LTS.xml"
+    ],
+    "test:deprecations:ci": [
+      "@test:deprecations:9LTS:ci",
+      "@test:deprecations:10LTS:ci"
+    ]
   }
 }

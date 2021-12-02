@@ -86,7 +86,7 @@ class SlideController extends AbstractPlugin
         } else {
             $this->languageFallback = [];
         }
-        foreach($rootLine as $page) {
+        foreach ($rootLine as $page) {
             $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
             $page = $pageRepository->getPage($page['uid']);
             $value = $this->getPageFlexValue($page, $field);

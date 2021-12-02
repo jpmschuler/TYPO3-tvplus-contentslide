@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 use Rector\Core\Configuration\Option;
 use Rector\Core\ValueObject\PhpVersion;
@@ -9,18 +9,21 @@ use Rector\PostRector\Rector\NameImportingPostRector;
 use Ssch\TYPO3Rector\Configuration\Typo3Option;
 use Ssch\TYPO3Rector\FileProcessor\Composer\Rector\ExtensionComposerRector;
 use Ssch\TYPO3Rector\FileProcessor\TypoScript\Rector\FileIncludeToImportStatementTypoScriptRector;
-use Ssch\TYPO3Rector\Rector\General\ConvertTypo3ConfVarsRector;
-use Ssch\TYPO3Rector\Rector\General\ExtEmConfRector;
 use Ssch\TYPO3Rector\Rector\v9\v0\InjectAnnotationRector;
+use Ssch\TYPO3Rector\Rector\General\ConvertImplicitVariablesToExplicitGlobalsRector;
+use Ssch\TYPO3Rector\Rector\General\ExtEmConfRector;
+use Ssch\TYPO3Rector\Set\Typo3LevelSetList;
+use Ssch\TYPO3Rector\FileProcessor\TypoScript\Rector\ExtbasePersistenceTypoScriptRector;
+
 use Ssch\TYPO3Rector\Set\Typo3SetList;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
 
-    $containerConfigurator->import(Typo3SetList::TYPO3_76);
-    $containerConfigurator->import(Typo3SetList::TYPO3_87);
-    $containerConfigurator->import(Typo3SetList::TYPO3_95);
+    $myVersion = exec('$(composer config extra.rector.typo3lts 2> /dev/null || echo 11)');
+
+    $containerConfigurator->import(Typo3LevelSetList::UP_TO_TYPO3_11);
     $containerConfigurator->import(Typo3SetList::DATABASE_TO_DBAL);
 
     // In order to have a better analysis from phpstan we teach it here some more things
@@ -36,10 +39,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set(Option::IMPORT_DOC_BLOCKS, false);
 
     // Define your target version which you want to support
-    $parameters->set(Option::PHP_VERSION_FEATURES, PhpVersion::PHP_72);
+    $parameters->set(Option::PHP_VERSION_FEATURES, PhpVersion::PHP_74);
 
     // If you have an editorconfig and changed files should keep their format enable it here
-    // $parameters->set(Option::ENABLE_EDITORCONFIG, true);
+    $parameters->set(Option::ENABLE_EDITORCONFIG, true);
 
     // If you only want to process one/some TYPO3 extension(s), you can specify its path(s) here.
     // If you use the option --config change __DIR__ to getcwd()
@@ -47,32 +50,30 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     //    __DIR__ . '/packages/acme_demo/',
     // ]);
 
-    // If you set option Option::AUTO_IMPORT_NAMES to true, you should consider excluding some TYPO3 files.
     // If you use the option --config change __DIR__ to getcwd()
     $parameters->set(Option::SKIP, [
-        NameImportingPostRector::class => [
-            'ClassAliasMap.php',
-            'ext_emconf.php',
-            'ext_localconf.php',
-            'ext_tables.php',
-            __DIR__ . '/**/Configuration/AjaxRoutes.php',
-            __DIR__ . '/**/Configuration/Backend/AjaxRoutes.php',
-            __DIR__ . '/**/Configuration/Commands.php',
-            __DIR__ . '/**/Configuration/ExpressionLanguage.php',
-            __DIR__ . '/**/Configuration/Extbase/Persistence/Classes.php',
-            __DIR__ . '/**/Configuration/RequestMiddlewares.php',
-            __DIR__ . '/**/Configuration/TCA/*',
-        ],
-
+        // @see https://github.com/sabbelasichon/typo3-rector/issues/2536
+        __DIR__ . '/**/Configuration/ExtensionBuilder/*',
         // We skip those directories on purpose as there might be node_modules or similar
         // that include typescript which would result in false positive processing
-        __DIR__ . '/.Build/*',
-        __DIR__ . '/node_modules/*',
         __DIR__ . '/**/Resources/**/node_modules/*',
         __DIR__ . '/**/Resources/**/NodeModules/*',
         __DIR__ . '/**/Resources/**/BowerComponents/*',
         __DIR__ . '/**/Resources/**/bower_components/*',
         __DIR__ . '/**/Resources/**/build/*',
+        __DIR__ . '/.Build/*',
+        __DIR__ . '/node_modules/*',
+    ]);
+
+    // This is used by the class \Ssch\TYPO3Rector\Rector\PostRector\FullQualifiedNamePostRector to force FQN in this paths and files
+    $parameters->set(Typo3Option::PATHS_FULL_QUALIFIED_NAMESPACES, [
+        # If you are targeting TYPO3 Version 11 use can now use Short namespace
+        # @see namespace https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ExtensionArchitecture/ConfigurationFiles/Index.html
+        'ext_localconf.php',
+        'ext_tables.php',
+        'ClassAliasMap.php',
+        __DIR__ . '/**/Configuration/*.php',
+        __DIR__ . '/**/Configuration/**/*.php',
     ]);
 
     // If you have trouble that rector cannot run because some TYPO3 constants are not defined add an additional constants file
@@ -107,10 +108,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // The filename can be passed as argument, "Configuration_Extbase_Persistence_Classes.php" is default.
     // $services->set(ExtbasePersistenceTypoScriptRector::class);
     // Add some general TYPO3 rules
-    $services->set(ConvertTypo3ConfVarsRector::class);
+    $services->set(ConvertImplicitVariablesToExplicitGlobalsRector::class);
     $services->set(ExtEmConfRector::class);
     $services->set(ExtensionComposerRector::class);
 
     // Do you want to modernize your TypoScript include statements for files and move from <INCLUDE /> to @import use the FileIncludeToImportStatementVisitor
-    // $services->set(FileIncludeToImportStatementTypoScriptRector::class);
+    $services->set(FileIncludeToImportStatementTypoScriptRector::class);
 };

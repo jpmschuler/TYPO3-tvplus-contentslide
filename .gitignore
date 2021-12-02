@@ -3,6 +3,7 @@
 ###################
 # OS
 ###################
+.scannerwork
 .DS_Store
 .DS_Store?
 ._*
@@ -12,22 +13,34 @@
 ehthumbs.db
 Thumbs.db
 ###################
-# build tools / IDE
+# build tools
 ###################
-node_modules
-.idea
-.ddev
-.deploy.sh
-vendor
-.Build
+/node_modules
+/vendor
+/typo3
+/.Build
+/target
+/.sonar
 ###################
-# sonar
+# IntelliJ
 ###################
-target
-.sonar
-#######
-# TER
-#######
-TER-releases
-composer.lock
-package-lock.json
+/.idea
+####
+# ddev
+####
+/var/
+/*.cache
+/Tests/Output
+/*deprecations*.xml
+/*report*.xml
+/.editorconfig
+/.php_cs.php
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+/.phpcs.xml
+/.phpstan.constants.php
+/phpstan.neon
+/rector.php
+/rector.*.php
+/typoscript-lint.yml
+/report.*
