@@ -60,7 +60,7 @@ class SlideController extends AbstractPlugin
      * which has this value set.
      *
      * @param ?string $content : The already set content
-     * @param array  $conf    : The configuration of the plugin
+     * @param array   $conf    : The configuration of the plugin
      *
      * @return string The content elements as comma separated list as required by RECORDS
      */
@@ -181,7 +181,10 @@ class SlideController extends AbstractPlugin
             $langDisable = 0;
         }
         $translatedLanguagesArr = $this->getAvailableLanguages($page['uid']);
+        $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language');
+        $tryLang = $languageAspect->getContentId();
         $tryLangArr = $this->languageFallback;
+        array_unshift($tryLangArr, $tryLang);
         foreach ($tryLangArr as $tryLang) {
             $langArr = $translatedLanguagesArr[$tryLang];
             if ($langArr) {
@@ -204,13 +207,14 @@ class SlideController extends AbstractPlugin
                 );
             }
         }
+
         return '';
     }
 
     /**
      * Returns a value of a flex field and if necessary calls itself recursively
      *
-     * @param ?array  $arr  The flex XML data array from which to return the requested value
+     * @param ?array $arr  The flex XML data array from which to return the requested value
      * @param array  $keys Contains the key/path into the flex XML data array which to return
      * @param string $vKey The language value which should get returned (i.e. vDEF, vDE, vPT, etc.)
      *
@@ -246,7 +250,7 @@ class SlideController extends AbstractPlugin
         bool $setDefault = true,
         bool $setMulti = true
     ): array {
-        if ($id === null)  {
+        if ($id === null) {
             $id = 0;
         }
         // TODO: rector and refactor
