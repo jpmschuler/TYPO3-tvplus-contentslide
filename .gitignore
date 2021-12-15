@@ -44,3 +44,4 @@ Thumbs.db
 /rector.*.php
 /typoscript-lint.yml
 /report.*
+/.deploy.sh
