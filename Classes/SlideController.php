@@ -32,7 +32,6 @@
 namespace Jpmschuler\TvplusContentslide;
 
 use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
-use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\RelationHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -42,10 +41,17 @@ use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
 class SlideController extends AbstractPlugin
 {
+    /**
+     * @var array
+     */
     public $languageFallback = [];
     public $prefixId = 'SlideController';
     public $scriptRelPath = 'Classes/SlideController.php';
     public $extKey = 'tvplus_contentslide';
+
+    /**
+     * @var bool true
+     */
     public $pi_checkCHash = true;
 
     /**
@@ -53,12 +59,12 @@ class SlideController extends AbstractPlugin
      * rendering the Content Elements for a TV Column. Should return the tt_content entries of the first page
      * which has this value set.
      *
-     * @param string $content : The already set content
+     * @param ?string $content : The already set content
      * @param array  $conf    : The configuration of the plugin
      *
      * @return string The content elements as comma separated list as required by RECORDS
      */
-    public function main($content, $conf)
+    public function main(?string $content, array $conf): string
     {
         if ($conf['overridePage'] || $conf['overridePage.']) {
             $overridePage = $this->cObj->stdWrap($conf['overridePage'], $conf['overridePage.']);
@@ -76,17 +82,13 @@ class SlideController extends AbstractPlugin
         $innerReverse = (int)$this->cObj->stdWrap($conf['innerReverse'], $conf['innerReverse.']);
         $field = $this->cObj->stdWrap($conf['field'], $conf['field.']);
         $collect = (int)$this->cObj->stdWrap($conf['collect'], $conf['collect.']);
-        $slide = (int)$this->cObj->stdWrap($conf['slide'], $conf['slide.']);
-        if (!$slide) {
-            $slide = -1;
-        }
+        $slide = ((int)$this->cObj->stdWrap($conf['slide'], $conf['slide.'])) ?: -1;
         $tempLanguageFallback = $this->cObj->stdWrap($conf['languageFallback'], $conf['languageFallback.']);
-        if (strlen($tempLanguageFallback)) {
-            $this->languageFallback = GeneralUtility::intExplode(',', $tempLanguageFallback);
-        } else {
-            $this->languageFallback = [];
-        }
+        $this->languageFallback = $tempLanguageFallback !== ''
+            ? GeneralUtility::intExplode(',', $tempLanguageFallback)
+            : [];
         foreach ($rootLine as $page) {
+            /** @var PageRepository $pageRepository */
             $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
             $page = $pageRepository->getPage($page['uid']);
             $value = $this->getPageFlexValue($page, $field);
@@ -122,11 +124,11 @@ class SlideController extends AbstractPlugin
     /**
      * This method removes hidden or disabled content elements from the list.
      *
-     * @param string $value : A list of content element uids to check
+     * @param string $value A csv list of content element uids to check
      *
-     * @return string A list of remaining valid content elements
+     * @return string A csv list of remaining valid content elements
      */
-    protected function removeHiddenRecords($value, $recordTable)
+    protected function removeHiddenRecords(string $value, $recordTable): string
     {
         $uids = GeneralUtility::intExplode(',', $value);
         $uidList = implode(',', $uids);
@@ -153,12 +155,12 @@ class SlideController extends AbstractPlugin
     /**
      * This method returns the contents of the flex-field given.
      *
-     * @param array  $page  : The page row from which to retrieve the flex field value
-     * @param string $field : The field name in the flex XML
+     * @param array  $page  The page row from which to retrieve the flex field value
+     * @param string $field The field name in the flex XML
      *
      * @return string The contents of the field
      */
-    protected function getPageFlexValue($page, $field)
+    protected function getPageFlexValue($page, $field): string
     {
         $xml = GeneralUtility::xml2array($page['tx_templavoilaplus_flex']);
         $flexFormTools = GeneralUtility::makeInstance(FlexFormTools::class);
@@ -179,8 +181,6 @@ class SlideController extends AbstractPlugin
             $langDisable = 0;
         }
         $translatedLanguagesArr = $this->getAvailableLanguages($page['uid']);
-        $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language');
-        $tryLang = $languageAspect->getContentId();
         $tryLangArr = $this->languageFallback;
         foreach ($tryLangArr as $tryLang) {
             $langArr = $translatedLanguagesArr[$tryLang];
@@ -210,13 +210,13 @@ class SlideController extends AbstractPlugin
     /**
      * Returns a value of a flex field and if necessary calls itself recursively
      *
-     * @param array  $arr  : The flex XML data array from which to return the requested value
-     * @param array  $keys : Contains the key/path into the flex XML data array which to return
-     * @param string $vKey : The language value which should get returned (i.e. vDEF, vDE, vPT, etc.)
+     * @param ?array  $arr  The flex XML data array from which to return the requested value
+     * @param array  $keys Contains the key/path into the flex XML data array which to return
+     * @param string $vKey The language value which should get returned (i.e. vDEF, vDE, vPT, etc.)
      *
      * @return string The contents of the field
      */
-    public function getSubKey($arr, $keys, $vKey)
+    public function getSubKey(?array $arr, array $keys, string $vKey): string
     {
         if (!is_array($arr)) {
             return '';
@@ -240,8 +240,16 @@ class SlideController extends AbstractPlugin
      *
      * @return array All available languages (on the passed page id)
      */
-    public function getAvailableLanguages($id = 0, $onlyIsoCoded = true, $setDefault = true, $setMulti = false)
-    {
+    public function getAvailableLanguages(
+        ?int $id = 0,
+        bool $onlyIsoCoded = true,
+        bool $setDefault = true,
+        bool $setMulti = true
+    ): array {
+        if ($id === null)  {
+            $id = 0;
+        }
+        // TODO: rector and refactor
         $flagAbsPath = GeneralUtility::getFileAbsFileName(
             $GLOBALS['TCA']['sys_language']['columns']['flag']['config']['fileFolder']
         );
