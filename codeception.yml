@@ -1,0 +1,29 @@
+namespace: Jpmschuler\TvplusContentslide\Tests\Acceptance\Support
+suites:
+  acceptance:
+    actor: AcceptanceTester
+    path: .
+    modules:
+      enabled:
+        - Asserts
+        - WebDriver:
+            url: https://tvplus-contentslide.ddev.site
+            browser: chrome
+            host: ddev-tvplus-contentslide-chrome
+            wait: 1
+            window_size: 1280x1024
+extensions:
+  enabled:
+    - Codeception\Extension\RunFailed
+    - Codeception\Extension\Recorder
+
+paths:
+  tests: Tests/Acceptance
+  output: ../var/log/_output
+  data: .
+  support: Tests/Acceptance/Support
+
+settings:
+  shuffle: false
+  lint: true
+  colors: true

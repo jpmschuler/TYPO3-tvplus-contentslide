@@ -45,3 +45,4 @@ Thumbs.db
 /typoscript-lint.yml
 /report.*
 /.deploy.sh
+/.ddev/docker-compose.yaml

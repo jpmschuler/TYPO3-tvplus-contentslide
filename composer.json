@@ -1,11 +1,11 @@
 {
   "name": "jpmschuler/tvplus-contentslide",
-  "type": "typo3-cms-extension",
   "description": "This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus",
-  "version": "v10.0.1-alpha.1",
   "license": [
     "GPL-2.0+"
   ],
+  "type": "typo3-cms-extension",
+  "version": "v10.0.1-alpha.1",
   "authors": [
     {
       "name": "J. Peter M. Schuler",
@@ -22,16 +22,30 @@
   "require-dev": {
     "bk2k/configuration-installer": "0.1.1",
     "camspiers/json-pretty": "^1.0",
+    "codeception/codeception": "^4.1",
+    "codeception/module-asserts": "^1.0.0",
+    "codeception/module-phpbrowser": "^1.0.0",
+    "codeception/module-webdriver": "^2.0",
     "ergebnis/composer-normalize": "^2.15",
     "friendsofphp/php-cs-fixer": "^v3.1.0",
     "helmich/typo3-typoscript-lint": "^2.5",
     "micheh/phpcs-gitlab": "^1.1.0",
     "michielroos/typo3scan": "*",
-    "nimut/testing-framework": "^6",
+    "nimut/testing-framework": "^6.0",
     "rector/rector": "^0.12.5",
     "roave/security-advisories": "dev-latest",
     "saschaegerer/phpstan-typo3": "^1",
     "squizlabs/php_codesniffer": "^3.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "Jpmschuler\\TvplusContentslide\\": "Classes/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Jpmschuler\\TvplusContentslide\\Tests\\": "Tests/"
+    }
   },
   "config": {
     "app-dir": ".Build",
@@ -49,12 +63,10 @@
       "web-dir": ".Build/public"
     }
   },
-  "autoload": {
-    "psr-4": {
-      "Jpmschuler\\TvplusContentslide\\": "Classes/"
-    }
-  },
   "scripts": {
+    "post-autoload-dump": [
+      "@prepare-extension-test-structure"
+    ],
     "codequality": [
       "@lint:php-cs-fixer",
       "@lint:all",
@@ -82,6 +94,9 @@
     "lint:phpstan": "phpstan --level=$(composer config extra.phpstan.level 2> /dev/null || echo 5) --memory-limit=1G analyse",
     "lint:phpstan:ci": "phpstan --level=$(composer config extra.phpstan.level 2> /dev/null || echo 5) --memory-limit=1G --no-progress --error-format gitlab analyse > report.phpstan.json",
     "lint:typoscript": "typoscript-lint",
+    "prepare-extension-test-structure": [
+      "Nimut\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
+    ],
     "pretest:deprecations": [
       "mkdir -p .Build/$(composer config extra.typo3/cms.extension-key)",
       "rsync -ah --delete --exclude=node_modules --exclude=.* . .Build/$(composer config extra.typo3/cms.extension-key)"
