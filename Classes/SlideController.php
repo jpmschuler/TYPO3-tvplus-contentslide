@@ -31,7 +31,8 @@
 
 namespace Jpmschuler\TvplusContentslide;
 
-use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
+use Tvp\TemplaVoilaPlus\Service\ApiService;
+use Tvp\TemplaVoilaPlus\Utility\ApiHelperUtility;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\RelationHandler;
@@ -164,15 +165,17 @@ class SlideController extends AbstractPlugin
     protected function getPageFlexValue($page, $field): string
     {
         $xml = GeneralUtility::xml2array($page['tx_templavoilaplus_flex']);
-        $flexFormTools = GeneralUtility::makeInstance(FlexFormTools::class);
-        $ds = $flexFormTools->parseDataStructureByIdentifier(
-            $flexFormTools->getDataStructureIdentifier(
-                $GLOBALS['TCA']['pages']['columns']['tx_templavoilaplus_flex'],
-                'pages',
-                'tx_templavoilaplus_flex',
-                $page
-            )
-        );
+        $apiService = GeneralUtility::makeInstance(ApiService::class, 'pages');
+        $combinedMappingConfigurationIdentifier = $page['tx_templavoilaplus_map'];
+        // Find DS and Template in root line IF there is no Data Structure set for the current page:
+        if (!$combinedMappingConfigurationIdentifier) {
+            $rootLine = $apiService->getBackendRootline($page['uid']);
+            $combinedMappingConfigurationIdentifier = $apiService->getMapIdentifierFromRootline($rootLine);
+        }
+        $mappingConfiguration = ApiHelperUtility::getMappingConfiguration($combinedMappingConfigurationIdentifier);
+        $combinedDataStructureIdentifier = $mappingConfiguration->getCombinedDataStructureIdentifier();
+
+        $ds = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier);
 
         if (is_array($ds) && is_array($ds['meta'])) {
             $langChildren = (int)$ds['meta']['langChildren'];
@@ -255,6 +258,7 @@ class SlideController extends AbstractPlugin
             $id = 0;
         }
         // TODO: rector and refactor
+        // flag is not needed
         $flagAbsPath = GeneralUtility::getFileAbsFileName(
             $GLOBALS['TCA']['sys_language']['columns']['flag']['config']['fileFolder']
         );
