@@ -1,11 +1,11 @@
 {
   "name": "jpmschuler/tvplus-contentslide",
-  "type": "typo3-cms-extension",
   "description": "This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus",
-  "version": "v10.0.1",
   "license": [
     "GPL-2.0+"
   ],
+  "type": "typo3-cms-extension",
+  "version": "v11.0.1-alpha.0",
   "authors": [
     {
       "name": "J. Peter M. Schuler",
@@ -14,7 +14,6 @@
     }
   ],
   "require": {
-    "friendsoftypo3/typo3db-legacy": "*",
     "templavoilaplus/templavoilaplus": "^8 || ^8.0.0-beta.2",
     "typo3/cms-backend": "*",
     "typo3/cms-core": "^9.5.29 || ^10.4.19",
@@ -30,11 +29,21 @@
     "michielroos/typo3scan": "*",
     "nimut/testing-framework": "^6",
     "rector/rector": "^0.12.5",
-    "roave/security-advisories": "dev-latest",
     "saschaegerer/phpstan-typo3": "^1",
     "squizlabs/php_codesniffer": "^3.6"
   },
+  "autoload": {
+    "psr-4": {
+      "Jpmschuler\\TvplusContentslide\\": "Classes/"
+    }
+  },
   "config": {
+    "allow-plugins": {
+      "typo3/class-alias-loader": true,
+      "typo3/cms-composer-installers": true,
+      "bk2k/configuration-installer": true,
+      "ergebnis/composer-normalize": true
+    },
     "app-dir": ".Build",
     "bin-dir": ".Build/bin",
     "sort-packages": true,
@@ -48,11 +57,6 @@
       "app-dir": ".Build",
       "extension-key": "tvplus_contentslide",
       "web-dir": ".Build/public"
-    }
-  },
-  "autoload": {
-    "psr-4": {
-      "Jpmschuler\\TvplusContentslide\\": "Classes/"
     }
   },
   "scripts": {

@@ -34,8 +34,11 @@ namespace Jpmschuler\TvplusContentslide;
 use Tvp\TemplaVoilaPlus\Service\ApiService;
 use Tvp\TemplaVoilaPlus\Utility\ApiHelperUtility;
 use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\FrontendGroupRestriction;
+use TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer;
 use TYPO3\CMS\Core\Database\RelationHandler;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
 use TYPO3\CMS\Frontend\Page\PageRepository;
@@ -86,9 +89,11 @@ class SlideController extends AbstractPlugin
         $collect = (int)$this->cObj->stdWrap($conf['collect'], $conf['collect.']);
         $slide = ((int)$this->cObj->stdWrap($conf['slide'], $conf['slide.'])) ?: -1;
         $tempLanguageFallback = $this->cObj->stdWrap($conf['languageFallback'], $conf['languageFallback.']);
-        $this->languageFallback = $tempLanguageFallback !== ''
-            ? GeneralUtility::intExplode(',', $tempLanguageFallback)
-            : [];
+        if ($tempLanguageFallback !== '') {
+            $this->languageFallback = GeneralUtility::intExplode(',', $tempLanguageFallback);
+        } else {
+            $this->languageFallback = [];
+        }
         foreach ($rootLine as $page) {
             /** @var PageRepository $pageRepository */
             $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
@@ -175,7 +180,7 @@ class SlideController extends AbstractPlugin
         $mappingConfiguration = ApiHelperUtility::getMappingConfiguration($combinedMappingConfigurationIdentifier);
         $combinedDataStructureIdentifier = $mappingConfiguration->getCombinedDataStructureIdentifier();
 
-        $ds = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier);
+        $ds = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier)->getDataStructureArray();
 
         if (is_array($ds) && is_array($ds['meta'])) {
             $langChildren = (int)$ds['meta']['langChildren'];
@@ -206,7 +211,7 @@ class SlideController extends AbstractPlugin
             ) {
                 return $this->getSubKey(
                     $xml['data']['sDEF'][$lKey],
-                    GeneralUtility::trimExplode(',', $field, 1),
+                    GeneralUtility::trimExplode(',', $field, true),
                     $vKey
                 );
             }
@@ -239,89 +244,62 @@ class SlideController extends AbstractPlugin
     /**
      * Generates an array of available languages
      *
-     * @param int  $id           : The page for which to return available languages. If passed only languages for
-     *                           available translations will get returned.
-     * @param bool $onlyIsoCoded : Will only return a language if it has its "ISOcode" field set
-     * @param bool $setDefault   : When TRUE the default language "0" (lDEF/vDEF) will get included in the result
-     * @param bool $setMulti     : When TRUE the multiple languages config "-1" (lDEF/vDEF) will get included in the
-     *                           result
+     * @param ?int $id The page for which to return available languages. If passed only languages for
+     *                 available translations will get returned.
      *
      * @return array All available languages (on the passed page id)
      */
-    public function getAvailableLanguages(
-        ?int $id = 0,
-        bool $onlyIsoCoded = true,
-        bool $setDefault = true,
-        bool $setMulti = true
-    ): array {
+    public function getAvailableLanguages(?int $id = 0): array
+    {
         if ($id === null) {
             $id = 0;
         }
-        // TODO: rector and refactor
-        // flag is not needed
-        $flagAbsPath = GeneralUtility::getFileAbsFileName(
-            $GLOBALS['TCA']['sys_language']['columns']['flag']['config']['fileFolder']
-        );
-        $flagIconPath = $GLOBALS['BACK_PATH'] . '../' . substr($flagAbsPath, strlen(Environment::getPublicPath()));
-
         $output = [];
-        $excludeHidden = 'sys_language.hidden=0';
 
-        if ($id) {
-            $excludeHidden .= ' AND pages.deleted=0';
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'DISTINCT sys_language.*',
-                'pages,sys_language',
-                'pages.sys_language_uid=sys_language.uid AND pages.pid=' . ((int)$id) . ' AND ' . $excludeHidden,
-                '',
-                'sys_language.title'
-            );
-        } else {
-            $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                'sys_language.*',
-                'sys_language',
-                $excludeHidden,
-                '',
-                'sys_language.title'
-            );
-        }
+        $currentSite = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($id);
+        $availableLanguages = $currentSite->getLanguages();
 
-        if ($setDefault) {
-            $output[0] = [
-                'uid' => 0,
-                'ISOcode' => 'DEF',
-            ];
-        }
+        $output[0] = [
+            'uid' => 0,
+            'ISOcode' => 'DEF',
+        ];
+        $output[-1] = [
+            'uid' => -1,
+            'ISOcode' => 'DEF',
+        ];
 
-        if ($setMulti) {
-            $output[-1] = [
-                'uid' => -1,
-                'ISOcode' => 'DEF',
-            ];
-        }
-
-        while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-            $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
-            $pageRepository->versionOL('sys_language', $row);
-            $output[$row['uid']] = $row;
-
-            $staticLanguageUid = (int)$row['static_lang_isocode'];
-            if ($staticLanguageUid) {
-                $staticLangRow = $pageRepository->getRawRecord('static_languages', $staticLanguageUid, 'lg_iso_2');
-                if ($staticLangRow['lg_iso_2']) {
-                    $output[$row['uid']]['ISOcode'] = $staticLangRow['lg_iso_2'];
-                }
-            }
-            if ($row['flag'] !== '') {
-                $output[$row['uid']]['flagIcon']
-                    = is_file($flagAbsPath . $row['flag']) ? $flagIconPath . $row['flag'] : '';
-            }
-
-            if ($onlyIsoCoded && !$output[$row['uid']]['ISOcode']) {
-                unset($output[$row['uid']]);
+        foreach ($availableLanguages as $language) {
+            $languageId = $language->getLanguageId();
+            $isoCode = $language->getTwoLetterIsoCode();
+            if ($languageId > 0 && static::checkIfPageHasTranslation($id, $languageId)) {
+                $output[$languageId]['ISOcode'] = $isoCode;
             }
         }
 
         return $output;
+    }
+
+    public static function checkIfPageHasTranslation($pid, $lid)
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('pages');
+        $queryBuilder->setRestrictions(GeneralUtility::makeInstance(FrontendRestrictionContainer::class));
+        $queryBuilder->getRestrictions()->removeByType(FrontendGroupRestriction::class);
+        $result = $queryBuilder
+            ->count('uid')
+            ->from('pages')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    $GLOBALS['TCA']['pages']['ctrl']['transOrigPointerField'],
+                    $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    $GLOBALS['TCA']['pages']['ctrl']['languageField'],
+                    $queryBuilder->createNamedParameter($lid, \PDO::PARAM_INT)
+                )
+            )
+            ->execute()
+            ->fetchOne();
+        return $result > 0;
     }
 }

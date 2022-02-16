@@ -1,7 +1,7 @@
 {
   "name": "tvplus-contentslide",
   "description": "This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus",
-  "version": "10.0.1",
+  "version": "11.0.1-alpha.0",
   "author": "j.peter.m.schuler@uni-due.de",
   "devDependencies": {
     "minimist": "^1.2.5",
@@ -11,7 +11,8 @@
   "license": "GPL-2.0+",
   "scripts": {
     "checkClean": "git status --porcelain -- || exit 1",
-    "develop": "npm run test && npm run version:prerelease && ./.deploy.sh",
+    "develop": "trap 'npm run  version:revert' SIGINT; npm run watch",
+    "develop:all": "npm run test && npm run version:prerelease && ./.deploy.sh",
     "postversion:major": "npm run version:copy",
     "postversion:minor": "npm run version:copy",
     "postversion:patch": "npm run version:copy",
@@ -28,7 +29,7 @@
     "version:revert": "npm --no-git-tag-version version prerelease --preid=reset; npm --no-git-tag-version version prerelease --preid=alpha; npm run version:copy",
     "version:set": "node -e \"var argv = require('minimist')(process.argv.slice(1)); console.log(argv._);\" | npm --allow-same-version --no-git-tag-version version",
     "version:show": "node -pe \"require('./package.json').version\"",
-    "watch": "onchange -i -k -v **/*.php -- npm run develop"
+    "watch": "onchange -i -k -v **/*.php -- npm run develop:all"
   },
   "type": "typo3-cms-extension"
 }
