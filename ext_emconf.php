@@ -43,7 +43,8 @@ $EM_CONF['tvplus_contentslide'] = [
     'author_company' => '',
     'constraints' => [
         'depends' => [
-            'templavoilaplus' => '8.0.0-8.99.99'
+            'templavoilaplus' => '8.0.0-8.99.99',
+            'typo3' => '9.0.0-10.99.99'
         ]
     ]
 ];
