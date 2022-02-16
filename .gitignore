@@ -46,3 +46,5 @@ Thumbs.db
 /report.*
 /.deploy.sh
 /.ddev
+/tvplus-contentslide*
+/tvplus_contentslide*
