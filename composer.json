@@ -15,6 +15,7 @@
   ],
   "require": {
     "friendsoftypo3/typo3db-legacy": "*",
+    "templavoilaplus/templavoilaplus": "^8 || ^8.0.0-beta.2",
     "typo3/cms-backend": "*",
     "typo3/cms-core": "^9.5.29 || ^10.4.19",
     "typo3/cms-frontend": "*"
