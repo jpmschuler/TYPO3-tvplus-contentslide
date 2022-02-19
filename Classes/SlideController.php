@@ -38,6 +38,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\FrontendGroupRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer;
 use TYPO3\CMS\Core\Database\RelationHandler;
+use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
@@ -80,7 +81,11 @@ class SlideController extends AbstractPlugin
             );
             $rootLine = $rootLineUtility->get();
         } else {
-            $rootLine = $GLOBALS['TSFE']->rootLine;
+            $rootLineUtility = GeneralUtility::makeInstance(
+                RootlineUtility::class,
+                $GLOBALS['TSFE']->id
+            );
+            $rootLine = $rootLineUtility->get();
         }
         $recordsFromTable = trim($this->cObj->stdWrap($conf['table'], $conf['table.']));
         $reverse = (int)$this->cObj->stdWrap($conf['reverse'], $conf['reverse.']);
@@ -255,8 +260,11 @@ class SlideController extends AbstractPlugin
             $id = 0;
         }
         $output = [];
-
-        $currentSite = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($id);
+        try {
+            $currentSite = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($id);
+        } catch (SiteNotFoundException $e) {
+            return $output;
+        }
         $availableLanguages = $currentSite->getLanguages();
 
         $output[0] = [
