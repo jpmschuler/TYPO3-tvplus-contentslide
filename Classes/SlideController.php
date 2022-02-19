@@ -181,6 +181,9 @@ class SlideController extends AbstractPlugin
         if (!$combinedMappingConfigurationIdentifier) {
             $rootLine = $apiService->getBackendRootline($page['uid']);
             $combinedMappingConfigurationIdentifier = $apiService->getMapIdentifierFromRootline($rootLine);
+            if (!$combinedMappingConfigurationIdentifier) {
+                return '';
+            }
         }
         $mappingConfiguration = ApiHelperUtility::getMappingConfiguration($combinedMappingConfigurationIdentifier);
         $combinedDataStructureIdentifier = $mappingConfiguration->getCombinedDataStructureIdentifier();
