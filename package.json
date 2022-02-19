@@ -1,7 +1,7 @@
 {
   "name": "tvplus-contentslide",
   "description": "This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus",
-  "version": "11.0.4",
+  "version": "11.0.5-alpha.0",
   "author": "j.peter.m.schuler@uni-due.de",
   "devDependencies": {
     "minimist": "^1.2.5",
