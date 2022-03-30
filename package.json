@@ -4,7 +4,7 @@
   "version": "11.0.5-alpha.0",
   "author": "j.peter.m.schuler@uni-due.de",
   "devDependencies": {
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "onchange": "^7.1.0"
   },
   "homepage": "",
@@ -18,8 +18,8 @@
     "postversion:patch": "npm run version:copy",
     "postversion:prerelease": "npm run version:copy",
     "postversion:set": "npm run version:copy",
-    "test": "composer run test",
     "release": "npm run version:patch; git commit -a -m \"[RELEASE] Releasing v$(node -pe \"require('./package.json').version\")\"; git tag v$(node -pe \"require('./package.json').version\");  git archive -o \"tvplus_contentslide_$(node -pe \"require('./package.json').version\").zip\" v$(node -pe \"require('./package.json').version\"); npm run version:prerelease; git commit -a -m \"[TASK] set version to v$(node -pe \"require('./package.json').version\")\"",
+    "test": "composer run test",
     "version:copy": "npm run version:copy:package.json:ext_emconf.php && npm run version:copy:package.json:composer.json ",
     "version:copy:package.json:composer.json": "CURRENTVERSION=$(node -pe \"require('./package.json').version\") && composer config version v$CURRENTVERSION",
     "version:copy:package.json:ext_emconf.php": "node -e \"var fs = require('fs');var contents = fs.readFileSync('ext_emconf.php', 'utf8');contents=contents.replace(/'version' => '[^']+',/g,'\\'version\\' => \\''+require('./package.json').version+'\\',');fs.writeFile('./ext_emconf.php',contents,function (err) {});\"",
