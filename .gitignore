@@ -28,6 +28,7 @@ Thumbs.db
 ####
 # ddev
 ####
+/composer.lock
 /var/
 /*.cache
 /Tests/Output
