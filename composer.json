@@ -14,10 +14,10 @@
     }
   ],
   "require": {
-    "templavoilaplus/templavoilaplus": "^8 || ^8.0.0-beta.2",
-    "typo3/cms-backend": "*",
-    "typo3/cms-core": "^9.5.29 || ^10.4.19",
-    "typo3/cms-frontend": "*"
+    "templavoilaplus/templavoilaplus": "^8 || ^8.0.0-beta.2 || ^8.x-dev || *@alpha",
+    "typo3/cms-backend": "^v9.5.31 || ^v10.4.28 || ^v11.5.10",
+    "typo3/cms-core": "^v9.5.31 || ^v10.4.28 || ^v11.5.10",
+    "typo3/cms-frontend": "^v9.5.31 || ^v10.4.28 || ^v11.5.10"
   },
   "require-dev": {
     "bk2k/configuration-installer": "0.1.1",
