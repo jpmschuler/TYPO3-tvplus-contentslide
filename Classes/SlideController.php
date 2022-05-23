@@ -33,6 +33,7 @@ namespace Jpmschuler\TvplusContentslide;
 
 use Tvp\TemplaVoilaPlus\Service\ApiService;
 use Tvp\TemplaVoilaPlus\Utility\ApiHelperUtility;
+use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\FrontendGroupRestriction;
@@ -42,7 +43,6 @@ use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
-use TYPO3\CMS\Frontend\Page\PageRepository;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
 class SlideController extends AbstractPlugin
@@ -100,15 +100,14 @@ class SlideController extends AbstractPlugin
             $this->languageFallback = [];
         }
         foreach ($rootLine as $page) {
-            /** @var PageRepository $pageRepository */
-            $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+            $pageRepository = static::getPageRepository();
             $page = $pageRepository->getPage($page['uid']);
             $value = $this->getPageFlexValue($page, $field);
             if ($value && $recordsFromTable) {
                 $value = $this->removeHiddenRecords($value, $recordsFromTable);
             }
             if ($innerReverse) {
-                $parts = GeneralUtility::trimExplode(',', $value, 1);
+                $parts = GeneralUtility::trimExplode(',', $value, true);
                 $parts = array_reverse($parts);
                 $value = implode(',', $parts);
             }
@@ -151,7 +150,7 @@ class SlideController extends AbstractPlugin
         $loadDB->start($uidList, $recordTable);
         foreach ($loadDB->tableArray as $table => $tableData) {
             if (is_array($GLOBALS['TCA'][$table])) {
-                $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+                $pageRepository = static::getPageRepository();
                 $loadDB->additionalWhere[$table] = $pageRepository->enableFields($table);
             }
         }
@@ -162,6 +161,17 @@ class SlideController extends AbstractPlugin
             $result = implode(',', array_intersect($uids, $result));
         }
         return $result;
+    }
+
+    public static function getPageRepository()
+    {
+        if (class_exists(\TYPO3\CMS\Core\Domain\Repository\PageRepository::class)) {
+            return GeneralUtility::makeInstance(\TYPO3\CMS\Core\Domain\Repository\PageRepository::class);
+        }
+        if (class_exists(\TYPO3\CMS\Frontend\Page\PageRepository::class)) {
+            return GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+        }
+        return null;
     }
 
     /**
@@ -314,7 +324,7 @@ class SlideController extends AbstractPlugin
         return $output;
     }
 
-    public static function checkIfPageHasTranslation($pid, $lid)
+    public static function checkIfPageHasTranslation(int $pid, int $lid): bool
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable('pages');
