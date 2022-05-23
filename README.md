@@ -1,5 +1,7 @@
 [![CI](https://github.com/jpmschuler/TYPO3-tvplus-contentslide/actions/workflows/ci.yml/badge.svg)](https://github.com/jpmschuler/TYPO3-tvplus-contentslide/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/jpmschuler/TYPO3-tvplus-contentslide.svg)](https://github.com/jpmschuler/TYPO3-tvplus-contentslide/actions/workflows/ci.yml)
+![PHP-v](https://shields.io/packagist/php-v/jpmschuler/tvplus-contentslide)
+![Packagist](https://shields.io/packagist/v/jpmschuler/tvplus-contentslide)
+
 
 
 # EXT:tvplus_contentslide
