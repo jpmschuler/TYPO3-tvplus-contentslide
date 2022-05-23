@@ -33,9 +33,7 @@ if (PHP_SAPI !== 'cli') {
 }
 // Define in which folders to search and which folders to exclude
 $finder = (new PhpCsFixer\Finder())
-    ->in('Classes')
-    ->in('Tests')
-    ->in('Configuration');
+    ->in('Classes');
 // Return a Code Sniffing configuration using
 // all sniffers needed for PSR-2
 // and additionally:
