@@ -14,6 +14,7 @@
 		}
 	],
 	"require": {
+		"php": "^7.3 || ^8.0",
 		"templavoilaplus/templavoilaplus": "^7.3.0 || ^8.0.0 || 7.3.x-dev || 8.x-dev || *@alpha",
 		"typo3/cms-backend": "^v9.5.31 || ^v10.4.28 || ^v11.5.10",
 		"typo3/cms-core": "^v9.5.31 || ^v10.4.28 || ^v11.5.10",
@@ -73,6 +74,17 @@
 		"check:php": "find *.php Classes Configuration Tests -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l",
 		"check:php-cs-fixer": "php-cs-fixer fix",
 		"check:php-cs-fixer:dry-run": "php-cs-fixer fix --dry-run --using-cache=no --diff",
+		"check:php:podman": "@check:php:podman:all",
+		"check:php:podman:all": [
+			"@check:php:podman:php73",
+			"@check:php:podman:php74",
+			"@check:php:podman:php80",
+			"@check:php:podman:php81"
+		],
+		"check:php:podman:php73": "podman run --rm -it -v $(pwd):/data thecodingmachine/php:7.3-v4-slim-cli /bin/bash -c \"cd /data; composer run check:php\"",
+		"check:php:podman:php74": "podman run --rm -it -v $(pwd):/data thecodingmachine/php:7.4-v4-slim-cli /bin/bash -c \"cd /data; composer run check:php\"",
+		"check:php:podman:php80": "podman run --rm -it -v $(pwd):/data thecodingmachine/php:8.0-v4-slim-cli /bin/bash -c \"cd /data; composer run check:php\"",
+		"check:php:podman:php81": "podman run --rm -it -v $(pwd):/data thecodingmachine/php:8.1-v4-slim-cli /bin/bash -c \"cd /data; composer run check:php\"",
 		"check:phpcbf": "phpcbf Classes Configuration Tests",
 		"check:phpcs": "@check:phpcbf",
 		"check:phpcs:dry-run": "phpcs Classes Configuration Tests",
