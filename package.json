@@ -18,7 +18,7 @@
     "postversion:patch": "npm run version:copy",
     "postversion:prerelease": "npm run version:copy",
     "postversion:set": "npm run version:copy",
-    "release": "npm run version:patch; git commit -a -m \"[RELEASE] Releasing v$(node -pe \"require('./package.json').version\")\"; git tag v$(node -pe \"require('./package.json').version\");  git archive -o \"tvplus_contentslide_$(node -pe \"require('./package.json').version\").zip\" v$(node -pe \"require('./package.json').version\"); npm run version:prerelease; git commit -a -m \"[TASK] set version to v$(node -pe \"require('./package.json').version\")\"",
+    "release": "npm run version:patch; git commit -a -m \"[RELEASE] Releasing v$(node -pe \"require('./package.json').version\")\"; git tag v$(node -pe \"require('./package.json').version\")  -m \"[RELEASE] Releasing v$(node -pe \"require('./package.json').version\")\";  git archive -o \"tvplus_contentslide_$(node -pe \"require('./package.json').version\").zip\" v$(node -pe \"require('./package.json').version\"); npm run version:prerelease; git commit -a -m \"[TASK] set version to v$(node -pe \"require('./package.json').version\")\"",
     "test": "composer run test",
     "version:copy": "npm run version:copy:package.json:ext_emconf.php && npm run version:copy:package.json:composer.json ",
     "version:copy:package.json:composer.json": "CURRENTVERSION=$(node -pe \"require('./package.json').version\") && composer config version v$CURRENTVERSION",
