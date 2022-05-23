@@ -8,7 +8,7 @@
  *  (c) 2004-2014 Bernhard Kraft (kraftb@think-open.at)
  *
  *  Current maintainer:
- *  (c) 2016-2018 J. Peter M. Schuler (j.peter.m.schuler@uni-due.de)
+ *  (c) 2016-2022 J. Peter M. Schuler (j.peter.m.schuler@uni-due.de)
  *
  *  All rights reserved
  *
@@ -35,9 +35,6 @@ $EM_CONF['tvplus_contentslide'] = [
     'category' => 'plugin',
     'version' => '11.0.6-alpha.0',
     'state' => 'stable',
-    'uploadfolder' => false,
-    'createDirs' => '',
-    'clearcacheonload' => false,
     'author' => 'Schuler, J. Peter M.',
     'author_email' => 'j.peter.m.schuler@uni-due.de',
     'author_company' => '',
