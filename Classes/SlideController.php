@@ -66,7 +66,7 @@ class SlideController extends AbstractPlugin
      * which has this value set.
      *
      * @param ?string $content : The already set content
-     * @param array   $conf    : The configuration of the plugin
+     * @param array $conf : The configuration of the plugin
      *
      * @return string The content elements as comma separated list as required by RECORDS
      */
@@ -165,9 +165,22 @@ class SlideController extends AbstractPlugin
     }
 
     /**
+     * check if TVP-v8 or v7
+     *
+     * @return bool true, if EXT:templavoilaplus has version >=8
+     */
+    public static function checkForModernTVP()
+    {
+        if (class_exists(ApiService::class)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * This method returns the contents of the flex-field given.
      *
-     * @param array  $page  The page row from which to retrieve the flex field value
+     * @param array $page The page row from which to retrieve the flex field value
      * @param string $field The field name in the flex XML
      *
      * @return string The contents of the field
@@ -175,21 +188,32 @@ class SlideController extends AbstractPlugin
     protected function getPageFlexValue($page, $field): string
     {
         $xml = GeneralUtility::xml2array($page['tx_templavoilaplus_flex']);
-        $apiService = GeneralUtility::makeInstance(ApiService::class, 'pages');
-        $combinedMappingConfigurationIdentifier = $page['tx_templavoilaplus_map'];
-        // Find DS and Template in root line IF there is no Data Structure set for the current page:
-        if (!$combinedMappingConfigurationIdentifier) {
-            $rootLine = $apiService->getBackendRootline($page['uid']);
-            $combinedMappingConfigurationIdentifier = $apiService->getMapIdentifierFromRootline($rootLine);
+        if (static::checkForModernTVP()) {
+            $apiService = GeneralUtility::makeInstance(ApiService::class, 'pages');
+            $combinedMappingConfigurationIdentifier = $page['tx_templavoilaplus_map'];
+            // Find DS and Template in root line IF there is no Data Structure set for the current page:
             if (!$combinedMappingConfigurationIdentifier) {
-                return '';
+                $rootLine = $apiService->getBackendRootline($page['uid']);
+                $combinedMappingConfigurationIdentifier = $apiService->getMapIdentifierFromRootline($rootLine);
+                if (!$combinedMappingConfigurationIdentifier) {
+                    return '';
+                }
             }
+            $mappingConfiguration = ApiHelperUtility::getMappingConfiguration($combinedMappingConfigurationIdentifier);
+            $combinedDataStructureIdentifier = $mappingConfiguration->getCombinedDataStructureIdentifier();
+
+            $ds = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier)->getDataStructureArray();
+        } else {
+            $flexFormTools = GeneralUtility::makeInstance(FlexFormTools::class);
+            $ds = $flexFormTools->parseDataStructureByIdentifier(
+                $flexFormTools->getDataStructureIdentifier(
+                    $GLOBALS['TCA']['pages']['columns']['tx_templavoilaplus_flex'],
+                    'pages',
+                    'tx_templavoilaplus_flex',
+                    $page
+                )
+            );
         }
-        $mappingConfiguration = ApiHelperUtility::getMappingConfiguration($combinedMappingConfigurationIdentifier);
-        $combinedDataStructureIdentifier = $mappingConfiguration->getCombinedDataStructureIdentifier();
-
-        $ds = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier)->getDataStructureArray();
-
         if (is_array($ds) && is_array($ds['meta'])) {
             $langChildren = (int)$ds['meta']['langChildren'];
             $langDisable = (int)$ds['meta']['langDisable'];
@@ -231,8 +255,8 @@ class SlideController extends AbstractPlugin
     /**
      * Returns a value of a flex field and if necessary calls itself recursively
      *
-     * @param ?array $arr  The flex XML data array from which to return the requested value
-     * @param array  $keys Contains the key/path into the flex XML data array which to return
+     * @param ?array $arr The flex XML data array from which to return the requested value
+     * @param array $keys Contains the key/path into the flex XML data array which to return
      * @param string $vKey The language value which should get returned (i.e. vDEF, vDE, vPT, etc.)
      *
      * @return string The contents of the field
