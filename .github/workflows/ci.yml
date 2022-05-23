@@ -22,12 +22,11 @@ jobs:
           coverage: none
           tools: composer:v2.3
       - name: "Run PHP lint"
-        run: "composer lint:php"
+        run: "composer check:php"
     strategy:
       fail-fast: false
       matrix:
         php-version:
-          - 7.2
           - 7.3
           - 7.4
           - 8.0
@@ -60,7 +59,7 @@ jobs:
       fail-fast: false
       matrix:
         command:
-          - "composer:normalize"
+          - "normalize"
           - "check:php-cs-fixer:dry-run"
           - "check:phpcs:dry-run"
           - "check:phpstan"
