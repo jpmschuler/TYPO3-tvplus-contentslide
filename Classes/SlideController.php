@@ -212,7 +212,16 @@ class SlideController extends AbstractPlugin
             $mappingConfiguration = ApiHelperUtility::getMappingConfiguration($combinedMappingConfigurationIdentifier);
             $combinedDataStructureIdentifier = $mappingConfiguration->getCombinedDataStructureIdentifier();
 
-            $ds = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier)->getDataStructureArray();
+            // before 2022-05-16
+            if (
+                method_exists(
+                    ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier),
+                    'getDataStructureArray')
+            ) {
+                $ds = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier)->getDataStructureArray();
+            } else {
+                $ds = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier)->getDataStructure();
+            }
         } else {
             $flexFormTools = GeneralUtility::makeInstance(FlexFormTools::class);
             $ds = $flexFormTools->parseDataStructureByIdentifier(
