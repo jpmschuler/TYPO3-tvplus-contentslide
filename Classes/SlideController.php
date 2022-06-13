@@ -31,6 +31,8 @@
 
 namespace Jpmschuler\TvplusContentslide;
 
+use Tvp\TemplaVoilaPlus\Domain\Model\Configuration\DataConfiguration;
+use Tvp\TemplaVoilaPlus\Domain\Model\DataStructure;
 use Tvp\TemplaVoilaPlus\Service\ApiService;
 use Tvp\TemplaVoilaPlus\Utility\ApiHelperUtility;
 use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
@@ -39,6 +41,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\FrontendGroupRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer;
 use TYPO3\CMS\Core\Database\RelationHandler;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -165,11 +168,11 @@ class SlideController extends AbstractPlugin
 
     public static function getPageRepository()
     {
-        if (class_exists(\TYPO3\CMS\Core\Domain\Repository\PageRepository::class)) {
-            return GeneralUtility::makeInstance(\TYPO3\CMS\Core\Domain\Repository\PageRepository::class);
+        if (class_exists(PageRepository::class)) {
+            return GeneralUtility::makeInstance(PageRepository::class);
         }
-        if (class_exists(\TYPO3\CMS\Frontend\Page\PageRepository::class)) {
-            return GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+        if (class_exists(PageRepository::class)) {
+            return GeneralUtility::makeInstance(PageRepository::class);
         }
         return null;
     }
@@ -212,17 +215,21 @@ class SlideController extends AbstractPlugin
             $mappingConfiguration = ApiHelperUtility::getMappingConfiguration($combinedMappingConfigurationIdentifier);
             $combinedDataStructureIdentifier = $mappingConfiguration->getCombinedDataStructureIdentifier();
 
-            // before 2022-05-16
-            if (
-                method_exists(
-                    ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier),
-                    'getDataStructureArray')
-            ) {
-                $ds = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier)->getDataStructureArray();
+            if (class_exists(DataConfiguration::class)) {
+                // EXT:templavoilaplus > 8.0.3
+                /** @var \Tvp\TemplaVoilaPlus\Domain\Model\Configuration\DataConfiguration::class */
+                $dsModel = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier);
+                $ds = $dsModel->getDataStructure();
+            } elseif (class_exists(DataStructure::class)) {
+                // EXT:templavoilaplus > 7.9.99 <= 8.0.3
+                /** @var \Tvp\TemplaVoilaPlus\Domain\Model\DataStructure::class */
+                $dsModel = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier);
+                $ds = $dsModel - getDataStructureArray();
             } else {
-                $ds = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier)->getDataStructure();
+                $ds = null;
             }
         } else {
+            // EXT:templavoilaplus <= 7.3.x
             $flexFormTools = GeneralUtility::makeInstance(FlexFormTools::class);
             $ds = $flexFormTools->parseDataStructureByIdentifier(
                 $flexFormTools->getDataStructureIdentifier(
