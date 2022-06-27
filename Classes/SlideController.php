@@ -41,7 +41,6 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\FrontendGroupRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer;
 use TYPO3\CMS\Core\Database\RelationHandler;
-use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -171,8 +170,9 @@ class SlideController extends AbstractPlugin
         if (class_exists(PageRepository::class)) {
             return GeneralUtility::makeInstance(PageRepository::class);
         }
-        if (class_exists(PageRepository::class)) {
-            return GeneralUtility::makeInstance(PageRepository::class);
+        if (class_exists(\TYPO3\CMS\Frontend\Page\PageRepository::class)) {
+            // TYPO3 <= 9LTS
+            return GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
         }
         return null;
     }
@@ -217,14 +217,14 @@ class SlideController extends AbstractPlugin
 
             if (class_exists(DataConfiguration::class)) {
                 // EXT:templavoilaplus > 8.0.3
-                /** @var \Tvp\TemplaVoilaPlus\Domain\Model\Configuration\DataConfiguration::class */
+                /** @var DataConfiguration */
                 $dsModel = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier);
                 $ds = $dsModel->getDataStructure();
             } elseif (class_exists(DataStructure::class)) {
                 // EXT:templavoilaplus > 7.9.99 <= 8.0.3
-                /** @var \Tvp\TemplaVoilaPlus\Domain\Model\DataStructure::class */
+                /** @var DataStructure */
                 $dsModel = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier);
-                $ds = $dsModel - getDataStructureArray();
+                $ds = $dsModel->getDataStructureArray();
             } else {
                 $ds = null;
             }

@@ -4,3 +4,8 @@ parameters:
 			message: "#^If condition is always true\\.$#"
 			count: 1
 			path: Classes/SlideController.php
+
+		-
+			message: "#^PHPDoc tag @var contains unknown class Tvp\\\\TemplaVoilaPlus\\\\Domain\\\\Model\\\\DataStructure\\.$#"
+			count: 1
+			path: Classes/SlideController.php
