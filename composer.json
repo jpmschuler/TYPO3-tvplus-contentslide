@@ -5,7 +5,7 @@
 		"GPL-2.0+"
 	],
 	"type": "typo3-cms-extension",
-	"version": "v11.0.11-alpha.0",
+	"version": "v11.0.12",
 	"authors": [
 		{
 			"name": "J. Peter M. Schuler",
@@ -18,8 +18,9 @@
 		"templavoilaplus/templavoilaplus": "^7.3.0 || ^8.0.0 || 7.3.x-dev || 8.x-dev || dev-main || *@alpha",
 		"typo3/cms-backend": "^v9.5.31 || ^v10.4.28 || ^v11.5.10",
 		"typo3/cms-core": "^v9.5.31 || ^v10.4.28 || ^v11.5.10",
-		"typo3/cms-frontend": "^v9.5.31 || ^v10.4.28 || ^v11.5.10"
-	},
+		"typo3/cms-frontend": "^v9.5.31 || ^v10.4.28 || ^v11.5.10",
+    "ext-pdo": "*"
+  },
 	"require-dev": {
 		"ergebnis/composer-normalize": "^2.19.0",
 		"friendsofphp/php-cs-fixer": "^3.4.0",

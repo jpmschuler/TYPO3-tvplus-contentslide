@@ -75,33 +75,31 @@ class SlideController extends AbstractPlugin
      */
     public function main(?string $content, array $conf): string
     {
-        if ($conf['overridePage'] || $conf['overridePage.']) {
+        if (
+            (isset($conf['overridePage']) && $conf['overridePage'])
+            || (isset($conf['overridePage.']) && $conf['overridePage.'])
+        ) {
             $overridePage = $this->cObj->stdWrap($conf['overridePage'], $conf['overridePage.']);
             $rootLineUtility = GeneralUtility::makeInstance(
                 RootlineUtility::class,
                 $overridePage,
                 $GLOBALS['TSFE']->MP
             );
-            $rootLine = $rootLineUtility->get();
         } else {
             $rootLineUtility = GeneralUtility::makeInstance(
                 RootlineUtility::class,
                 $GLOBALS['TSFE']->id
             );
-            $rootLine = $rootLineUtility->get();
         }
-        $recordsFromTable = trim($this->cObj->stdWrap($conf['table'], $conf['table.']));
-        $reverse = (int)$this->cObj->stdWrap($conf['reverse'], $conf['reverse.']);
-        $innerReverse = (int)$this->cObj->stdWrap($conf['innerReverse'], $conf['innerReverse.']);
-        $field = $this->cObj->stdWrap($conf['field'], $conf['field.']);
-        $collect = (int)$this->cObj->stdWrap($conf['collect'], $conf['collect.']);
-        $slide = ((int)$this->cObj->stdWrap($conf['slide'], $conf['slide.'])) ?: -1;
-        $tempLanguageFallback = $this->cObj->stdWrap($conf['languageFallback'], $conf['languageFallback.']);
-        if ($tempLanguageFallback !== '') {
-            $this->languageFallback = GeneralUtility::intExplode(',', $tempLanguageFallback);
-        } else {
-            $this->languageFallback = [];
-        }
+        $rootLine = $rootLineUtility->get();
+        $recordsFromTable = trim($this->cObj->stdWrap($conf['table'] ?? '', $conf['table.'] ?? []));
+        $reverse = (int)$this->cObj->stdWrap($conf['reverse'] ?? '', $conf['reverse.'] ?? []);
+        $innerReverse = (int)$this->cObj->stdWrap($conf['innerReverse'] ?? '', $conf['innerReverse.'] ?? []);
+        $field = $this->cObj->stdWrap($conf['field'] ?? '', $conf['field.'] ?? []);
+        $collect = (int)$this->cObj->stdWrap($conf['collect'] ?? '', $conf['collect.'] ?? []);
+        $slide = ((int)$this->cObj->stdWrap($conf['slide'] ?? '', $conf['slide.'] ?? [])) ?: -1;
+        $tempLanguageFallback = $this->cObj->stdWrap($conf['languageFallback'] ?? '', $conf['languageFallback.'] ?? []);
+        $this->languageFallback = GeneralUtility::intExplode(',', $tempLanguageFallback ?? '');
         foreach ($rootLine as $page) {
             $pageRepository = static::getPageRepository();
             $page = $pageRepository->getPage($page['uid']);
@@ -152,7 +150,7 @@ class SlideController extends AbstractPlugin
         $loadDB->setFetchAllFields(true);
         $loadDB->start($uidList, $recordTable);
         foreach ($loadDB->tableArray as $table => $tableData) {
-            if (is_array($GLOBALS['TCA'][$table])) {
+            if (is_array($GLOBALS['TCA'][$table] ?? null)) {
                 $pageRepository = static::getPageRepository();
                 $loadDB->additionalWhere[$table] = $pageRepository->enableFields($table);
             }
@@ -254,7 +252,7 @@ class SlideController extends AbstractPlugin
         $tryLangArr = $this->languageFallback;
         array_unshift($tryLangArr, $tryLang);
         foreach ($tryLangArr as $tryLang) {
-            $langArr = $translatedLanguagesArr[$tryLang];
+            $langArr = $translatedLanguagesArr[$tryLang] ?? null;
             if ($langArr) {
                 $lKey = $langDisable ? 'lDEF' : ($langChildren ? 'lDEF' : 'l' . $langArr['ISOcode']);
                 $vKey = $langDisable ? 'vDEF' : ($langChildren ? 'v' . $langArr['ISOcode'] : 'vDEF');
