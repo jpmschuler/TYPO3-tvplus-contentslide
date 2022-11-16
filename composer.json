@@ -5,7 +5,6 @@
 		"GPL-2.0+"
 	],
 	"type": "typo3-cms-extension",
-	"version": "v11.0.12",
 	"authors": [
 		{
 			"name": "J. Peter M. Schuler",
