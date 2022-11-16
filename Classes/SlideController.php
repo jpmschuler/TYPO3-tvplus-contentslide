@@ -292,10 +292,10 @@ class SlideController extends AbstractPlugin
             return '';
         }
         if (!count($keys)) {
-            return $arr[$vKey];
+            return $arr[$vKey] ?? '';
         }
         $sKey = array_shift($keys);
-        return $this->getSubKey($arr[$sKey], $keys, $vKey);
+        return $this->getSubKey($arr[$sKey] ?? [], $keys ?? [], $vKey);
     }
 
     /**
