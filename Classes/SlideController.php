@@ -68,8 +68,8 @@ class SlideController extends AbstractPlugin
      * rendering the Content Elements for a TV Column. Should return the tt_content entries of the first page
      * which has this value set.
      *
-     * @param ?string $content : The already set content
-     * @param array $conf : The configuration of the plugin
+     * @param ?string $content The already set content
+     * @param array $conf The configuration of the plugin
      *
      * @return string The content elements as comma separated list as required by RECORDS
      */
