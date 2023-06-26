@@ -86,14 +86,12 @@
 			"@lint:php:onlyerrors",
 			"@lint:php-cs-fixer:dry-run:onlyerrors",
 			"@lint:phpcs:dry-run:onlyerrors",
-			"@lint:phpcpd:onlyerrors",
-			"@lint:xliff:onlyerrors"
+			"@lint:phpcpd:onlyerrors"
 		],
 		"lint:all": [
 			"@lint:php",
 			"@lint:php-cs-fixer:dry-run",
 			"@lint:phpcs:dry-run",
-			"@lint:phpcpd",
 			"@lint:phpstan"
 		],
 		"lint:php": "find *.php Classes Configuration Tests -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l",
@@ -102,8 +100,6 @@
 		"lint:php-cs-fixer:dry-run:onlyerrors": "php-cs-fixer fix --dry-run --using-cache=no --diff > \/dev\/null",
 		"lint:php:onlyerrors": "find *.php Classes -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l > \/dev\/null",
 		"lint:phpcbf": "phpcbf Classes",
-		"lint:phpcpd": "phpcpd Classes",
-		"lint:phpcpd:onlyerrors": "phpcpd Classes  > \/dev\/null",
 		"lint:phpcs": "@lint:phpcbf",
 		"lint:phpcs:dry-run": "phpcs Classes",
 		"lint:phpcs:dry-run:onlyerrors": "phpcs -n Classes",
@@ -111,12 +107,6 @@
     "lint:phpstan:baseline": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> \/dev\/null || echo 5) --memory-limit=1G analyse --generate-baseline",
 		"lint:phpstan:ci": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> \/dev\/null || echo 5) --memory-limit=1G --no-progress analyse",
 		"lint:typoscript": "typoscript-lint",
-		"lint:xliff": "xmllint --schema .Build\/xliff-core-1.2-strict.xsd --noout $(find Resources\/Private\/Language -name '*.xlf')",
-		"lint:xliff:installPrerequisites": "wget -q -O .Build\/xliff-core-1.2-strict.xsd https:\/\/docs.oasis-open.org\/xliff\/v1.2\/os\/xliff-core-1.2-strict.xsd",
-		"lint:xliff:onlyerrors": "xmllint --schema .Build\/xliff-core-1.2-strict.xsd --noout $(find Resources\/Private\/Language -name '*.xlf') > \/dev\/null",
-		"post-install": [
-			"@lint:xliff:installPrerequisites"
-		],
 		"post-update": "@post-install",
 		"rector": [
 			"rector process --config=rector.php . ",

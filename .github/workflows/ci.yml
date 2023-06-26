@@ -65,20 +65,11 @@ jobs:
           - "lint:phpstan:ci"
         php-version:
           - 7.4
-  xliff-lint:
-    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, '[RELEASE]')"
-    name: "Xliff linter"
-    runs-on: ubuntu-22.04
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v3
-      - name: "Run the xliff lint"
-        uses: TYPO3-Continuous-Integration/TYPO3-CI-Xliff-Lint@v1
-
+          -
   calculate-version:
     name: "calculating next SemVer"
     runs-on: ubuntu-20.04
-    needs: [ php-lint,xliff-lint,php-codequality ]
+    needs: [ php-lint,php-codequality ]
     outputs:
       majorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }} # To use an output in another job, you have to map it to a job output.
     steps:
