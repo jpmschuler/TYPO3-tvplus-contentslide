@@ -65,7 +65,7 @@ jobs:
           - "lint:phpstan:ci"
         php-version:
           - 7.4
-          -
+
   calculate-version:
     name: "calculating next SemVer"
     runs-on: ubuntu-20.04
