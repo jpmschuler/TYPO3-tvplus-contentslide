@@ -27,12 +27,14 @@
 		"jangregor/phpstan-prophecy": "^1.0.0",
 		"phpstan/extension-installer": "^1.1.0",
 		"phpstan/phpstan": "^1.6.2",
-		"rector/rector": "0.13.4",
 		"saschaegerer/phpstan-typo3": "^1.1.2",
 		"seld/jsonlint": "^1.9.0",
+    "seregazhuk/php-watcher": "^0.5.2",
 		"squizlabs/php_codesniffer": "^3.6.2",
-		"symfony/yaml": "^4.4.29 || ^5.3.6 || ^6.0"
-	},
+    "ssch\/typo3-rector": "^1",
+		"symfony/yaml": "^4.4.29 || ^5.3.6 || ^6.0",
+    "typo3\/tailor": "^1.5"
+  },
 	"autoload": {
 		"psr-4": {
 			"Jpmschuler\\TvplusContentslide\\": "Classes/"
@@ -63,60 +65,73 @@
 		}
 	},
 	"scripts": {
-		"check": [
-			"@check:all"
-		],
-		"check:all": [
-			"@check:php",
-			"@check:php-cs-fixer:dry-run",
-			"@check:phpcs:dry-run",
-			"@check:phpstan"
-		],
-		"check:php": "find *.php Classes  -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l",
-		"check:php-cs-fixer": "php-cs-fixer fix",
-		"check:php-cs-fixer:dry-run": "php-cs-fixer fix --dry-run --using-cache=no --diff",
-		"check:php:podman": "@check:php:podman:all",
-		"check:php:podman:all": [
-			"@check:php:podman:php73",
-			"@check:php:podman:php74",
-			"@check:php:podman:php80",
-			"@check:php:podman:php81"
-		],
-		"check:php:podman:php73": "podman run --rm -it -v $(pwd):/data thecodingmachine/php:7.3-v4-slim-cli /bin/bash -c \"cd /data; composer run check:php\"",
-		"check:php:podman:php74": "podman run --rm -it -v $(pwd):/data thecodingmachine/php:7.4-v4-slim-cli /bin/bash -c \"cd /data; composer run check:php\"",
-		"check:php:podman:php80": "podman run --rm -it -v $(pwd):/data thecodingmachine/php:8.0-v4-slim-cli /bin/bash -c \"cd /data; composer run check:php\"",
-		"check:php:podman:php81": "podman run --rm -it -v $(pwd):/data thecodingmachine/php:8.1-v4-slim-cli /bin/bash -c \"cd /data; composer run check:php\"",
-		"check:phpcbf": "phpcbf Classes",
-		"check:phpcs": "@check:phpcbf",
-		"check:phpcs:dry-run": "phpcs Classes",
-		"check:phpsniff:failOnWarnings": "phpcs Classes ",
-		"check:phpstan": "phpstan --level=$(composer config extra.phpstan.level 2> /dev/null || echo 5) --memory-limit=1G analyse",
-		"check:phpstan:ci": "phpstan --level=$(composer config extra.phpstan.level 2> /dev/null || echo 5) --memory-limit=1G --no-progress --error-format gitlab analyse > report.phpstan.json",
-		"check:phpstan:generateBaseline": "phpstan --level=$(composer config extra.phpstan.level 2> /dev/null || echo 5) --memory-limit=1G --generate-baseline=phpstan-baseline.neon analyse",
-		"check:typoscript": "typoscript-lint",
-		"codequality": [
-			"@check:php-cs-fixer",
-			"@check:all",
-			"@rector:dry-run"
-		],
-		"codequality:autofix": [
-			"@check:php-cs-fixer",
-			"@check:phpcbf",
-			"@rector"
-		],
-		"lint": [
-			"@check:php",
-			"@check:php-cs-fixer:dry-run"
-		],
-		"pretest:deprecations": [
-			"mkdir -p .Build/$(composer config extra.typo3/cms.extension-key)",
-			"rsync -ah --delete --exclude=node_modules --exclude=.* . .Build/$(composer config extra.typo3/cms.extension-key)"
-		],
-		"rector": "rector process -- .",
-		"rector:dry-run": "rector process --dry-run --  .",
-		"rector:dry-run:ci": "rector process --dry-run --output-format json -- . > report.rector.json",
-		"test": [
-			"@check:all"
-		]
-	}
+    "codequality": [
+      "@lint:php-cs-fixer",
+      "@lint:all",
+      "@rector:dry-run",
+      "@test:deprecations"
+    ],
+    "codequality:autofix": [
+      "@lint:php-cs-fixer",
+      "@lint:phpcbf",
+      "@rector"
+    ],
+    "develop": [
+      "Composer\\Config::disableProcessTimeout",
+      ".Build/bin/php-watcher foo --exec 'composer run develop:deploy' --signal SIGTERM --ignore .Build --ext=php,yaml,html,txt,typoscript,css,js,xlf"
+    ],
+    "develop:deploy": "[ -f ./.deploy.sh ] && ./.deploy.sh",
+    "git:precommit": [
+      "echo 'running precommit checks...'",
+      "@lint:php:onlyerrors",
+      "@lint:php-cs-fixer:dry-run:onlyerrors",
+      "@lint:phpcs:dry-run:onlyerrors",
+      "@lint:phpcpd:onlyerrors",
+      "@lint:xliff:onlyerrors"
+    ],
+    "lint:all": [
+      "@lint:php",
+      "@lint:php-cs-fixer:dry-run",
+      "@lint:phpcs:dry-run",
+      "@lint:phpcpd",
+      "@lint:phpstan"
+    ],
+    "lint:php": "find *.php Classes Configuration Tests -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l",
+    "lint:php-cs-fixer": "php-cs-fixer fix",
+    "lint:php-cs-fixer:dry-run": "php-cs-fixer fix --dry-run --using-cache=no --diff",
+    "lint:php-cs-fixer:dry-run:onlyerrors": "php-cs-fixer fix --dry-run --using-cache=no --diff > /dev/null",
+    "lint:php:onlyerrors": "find *.php Classes Configuration Tests -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l > /dev/null",
+    "lint:phpcbf": "phpcbf Classes Configuration Tests",
+    "lint:phpcpd": "phpcpd Classes",
+    "lint:phpcpd:onlyerrors": "phpcpd Classes  > /dev/null",
+    "lint:phpcs": "@lint:phpcbf",
+    "lint:phpcs:dry-run": "phpcs Classes Configuration Tests",
+    "lint:phpcs:dry-run:ci": "phpcs --report=full --report-\\\\Micheh\\\\PhpCodeSniffer\\\\Report\\\\Gitlab=report.phpcs.json  Classes Configuration Tests",
+    "lint:phpcs:dry-run:onlyerrors": "phpcs -n Classes Configuration Tests",
+    "lint:phpstan": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> /dev/null || echo 5) --memory-limit=1G analyse",
+    "lint:phpstan:ci": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> /dev/null || echo 5) --memory-limit=1G --no-progress --error-format=gitlab analyse > report.phpstan.json",
+    "lint:typoscript": "typoscript-lint",
+    "lint:xliff": "xmllint --schema .Build/xliff-core-1.2-strict.xsd --noout $(find Resources/Private/Language -name '*.xlf')",
+    "lint:xliff:installPrerequisites": "wget -q -O .Build/xliff-core-1.2-strict.xsd https://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd",
+    "lint:xliff:onlyerrors": "xmllint --schema .Build/xliff-core-1.2-strict.xsd --noout $(find Resources/Private/Language -name '*.xlf') > /dev/null",
+    "post-install": [
+      "@lint:xliff:installPrerequisites"
+    ],
+    "post-update": "@post-install",
+    "rector": [
+      "rector process --config=rector.php . ",
+      "@lint:php-cs-fixer"
+    ],
+    "rector:dry-run": "rector process --config=rector.php --dry-run --  .",
+    "rector:dry-run:ci": "rector process --config=rector.php --dry-run --output-format json -- . > report.rector.json",
+    "rector:force": "rector process .",
+    "test": [
+      "@lint:php-cs-fixer"
+    ],
+    "version:set": [
+      "@putenv TYPO3_DISABLE_DOCS_VERSION_UPDATE=1",
+      "@version:set:ext_emconf.php"
+    ],
+    "version:set:ext_emconf.php": "tailor set-version"
+  }
 }

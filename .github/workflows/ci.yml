@@ -1,15 +1,15 @@
-# This GitHub Actions workflow uses the same development tools that are also installed locally
-# via Composer or PHIVE and calls them using the Composer scripts.
-name: Tests
+name: Testing and SemVer-Releasing stable versions as tags
 on:
   push:
     branches:
       - main
-  pull_request:q
-  schedule:
-    - cron: '15 3 * * 1'
+      - develop
+  pull_request:
+  workflow_dispatch:
+
 jobs:
   php-lint:
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, '[RELEASE]')"
     name: "PHP linter"
     runs-on: ubuntu-20.04
     steps:
@@ -20,18 +20,18 @@ jobs:
         with:
           php-version: "${{ matrix.php-version }}"
           coverage: none
-          tools: composer:v2.3
+          tools: composer:v2.4
       - name: "Run PHP lint"
-        run: "composer check:php"
+        run: "composer lint:php"
     strategy:
       fail-fast: false
       matrix:
         php-version:
-          - 7.3
           - 7.4
           - 8.0
           - 8.1
-  code-quality:
+  php-codequality:
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, '[RELEASE]')"
     name: "Code quality checks"
     runs-on: ubuntu-20.04
     steps:
@@ -42,7 +42,7 @@ jobs:
         with:
           php-version: "${{ matrix.php-version }}"
           coverage: none
-          tools: composer:v2.3
+          tools: composer:v2.4
       - name: "Show Composer version"
         run: composer --version
       - name: "Cache dependencies installed with composer"
@@ -60,8 +60,67 @@ jobs:
       matrix:
         command:
           - "normalize"
-          - "check:php-cs-fixer:dry-run"
-          - "check:phpcs:dry-run"
-          - "check:phpstan"
+          - "lint:php-cs-fixer:dry-run"
+          - "lint:phpcs:dry-run"
+          - "lint:phpstan:ci"
         php-version:
           - 7.4
+  xliff-lint:
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, '[RELEASE]')"
+    name: "Xliff linter"
+    runs-on: ubuntu-22.04
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+      - name: "Run the xliff lint"
+        uses: TYPO3-Continuous-Integration/TYPO3-CI-Xliff-Lint@v1
+
+  calculate-version:
+    name: "calculating next SemVer"
+    runs-on: ubuntu-20.04
+    needs: [ php-lint,xliff-lint,php-codequality ]
+    outputs:
+      majorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }} # To use an output in another job, you have to map it to a job output.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0
+        with:
+          versionSpec: '5.x'
+      - name: Determine GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0
+        with:
+          useConfigFile: true
+      - name: Display GitVersion outputs
+        run: |
+          echo "LegacySemVer: ${{ steps.gitversion.outputs.legacySemVer }}"
+          echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+          echo "FullSemVer: ${{ steps.gitversion.outputs.FullSemVer }}"
+          echo "Major: ${{ steps.gitversion.outputs.major }}"
+          echo "Minor: ${{ steps.gitversion.outputs.minor }}"
+          echo "Patch: ${{ steps.gitversion.outputs.patch }}"
+          echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+      - name: Set Git User and Mail
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+      - name: Composer install
+        uses: php-actions/composer@v6
+        with:
+          args: --ignore-platform-req=ext-gd --ignore-platform-req=ext-pcntl --ignore-platform-req=ext-zip
+          php_version: "7.4"
+      - name: Create new tag, updating optional version files
+        run: |
+          export GIT_LASTTAG="$(git describe --tags --abbrev=0)"
+          export CHANGELOG="$(git log ${GIT_LASTTAG}...HEAD --abbrev=0 --format="%s%n%b")"
+          composer run version:set $GitVersion_MajorMinorPatch || true
+          git commit ext_emconf.php -m "[RELEASE] Releasing v${GitVersion_MajorMinorPatch}" || true
+          git tag v${GitVersion_MajorMinorPatch} -m "[RELEASE] Releasing v${GitVersion_MajorMinorPatch}" -m "" -m "Changes since last release:" -m "${CHANGELOG}"
+      - name: Publish new tag
+        run: |
+          git push origin v${GitVersion_MajorMinorPatch}
+          git push || true
