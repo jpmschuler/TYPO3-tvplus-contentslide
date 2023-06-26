@@ -73,8 +73,10 @@ class SlideController extends AbstractPlugin
      *
      * @return string The content elements as comma separated list as required by RECORDS
      */
+    // phpcs:disable Generic.Metrics.CyclomaticComplexity
     public function main(?string $content, array $conf): string
     {
+        // phpcs:enable
         if (
             (isset($conf['overridePage']) && $conf['overridePage'])
             || (isset($conf['overridePage.']) && $conf['overridePage.'])

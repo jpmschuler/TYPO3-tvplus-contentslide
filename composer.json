@@ -106,7 +106,6 @@
 		"lint:phpcpd:onlyerrors": "phpcpd Classes  > \/dev\/null",
 		"lint:phpcs": "@lint:phpcbf",
 		"lint:phpcs:dry-run": "phpcs Classes",
-		"lint:phpcs:dry-run:ci": "phpcs --report=full --report-\\\\Micheh\\\\PhpCodeSniffer\\\\Report\\\\Gitlab=report.phpcs.json  Classes",
 		"lint:phpcs:dry-run:onlyerrors": "phpcs -n Classes",
     "lint:phpstan": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> \/dev\/null || echo 5) --memory-limit=1G analyse",
     "lint:phpstan:baseline": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> \/dev\/null || echo 5) --memory-limit=1G analyse --generate-baseline",
