@@ -216,12 +216,12 @@ class SlideController extends AbstractPlugin
 
             if (class_exists(DataConfiguration::class)) {
                 // EXT:templavoilaplus > 8.0.3
-                /** @var DataConfiguration */
+                /** @var DataConfiguration $dsModel */
                 $dsModel = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier);
                 $ds = $dsModel->getDataStructure();
             } elseif (class_exists(DataStructure::class)) {
                 // EXT:templavoilaplus > 7.9.99 <= 8.0.3
-                /** @var DataStructure */
+                /** @var DataStructure $dsModel */
                 $dsModel = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier);
                 $ds = $dsModel->getDataStructureArray();
             } else {

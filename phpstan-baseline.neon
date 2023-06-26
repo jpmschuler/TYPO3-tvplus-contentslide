@@ -6,6 +6,6 @@ parameters:
 			path: Classes/SlideController.php
 
 		-
-			message: "#^PHPDoc tag @var contains unknown class Tvp\\\\TemplaVoilaPlus\\\\Domain\\\\Model\\\\DataStructure\\.$#"
+			message: "#^Variable \\$keys on left side of \\?\\? always exists and is not nullable\\.$#"
 			count: 1
 			path: Classes/SlideController.php
