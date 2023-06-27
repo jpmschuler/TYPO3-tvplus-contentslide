@@ -29,7 +29,7 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-$EM_CONF['tvplus_contentslide'] = [
+$EM_CONF[$_EXTKEY] = [
     'title' => 'TemplaVoilà! Plus: Content Slide',
     'description' => 'This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus',
     'category' => 'plugin',
@@ -43,5 +43,10 @@ $EM_CONF['tvplus_contentslide'] = [
             'templavoilaplus' => '7.3.0-8.99.99',
             'typo3' => '9.5.0-11.5.99'
         ]
-    ]
+    ],
+    'autoload' => [
+    'psr-4' => [
+        'Jpmschuler\\TvplusContentslide\\' => 'Classes/',
+    ],
+],
 ];

@@ -1,5 +1,5 @@
 {
-	"name": "jpmschuler\/tvplus-contentslide",
+	"name": "jpmschuler/tvplus-contentslide",
 	"description": "This extension allows you to inherit the content of a TemplaVoilaPlus content element column to its child pages - Adaption of EXT:kb_tv_cont_slide to work with templavoilaplus",
 	"license": [
 		"GPL-2.0+"
@@ -15,53 +15,52 @@
 	"require": {
 		"php": "^7.3 || ^8.0",
 		"ext-pdo": "*",
-		"templavoilaplus\/templavoilaplus": "^7.3.0 || ^8.0.0 || 7.3.x-dev || 8.x-dev || dev-main || *@alpha",
-		"typo3\/cms-backend": "^v9.5.31 || ^v10.4.28 || ^v11.5.10",
-		"typo3\/cms-core": "^v9.5.31 || ^v10.4.28 || ^v11.5.10",
-		"typo3\/cms-frontend": "^v9.5.31 || ^v10.4.28 || ^v11.5.10"
+		"templavoilaplus/templavoilaplus": "^7.3.0 || ^8.0.0 || 7.3.x-dev || 8.x-dev || dev-main || *@alpha",
+		"typo3/cms-backend": "^v9.5.31 || ^v10.4.28 || ^v11.5.10",
+		"typo3/cms-core": "^v9.5.31 || ^v10.4.28 || ^v11.5.10",
+		"typo3/cms-frontend": "^v9.5.31 || ^v10.4.28 || ^v11.5.10"
 	},
 	"require-dev": {
-		"ergebnis\/composer-normalize": "^2.19.0",
-		"friendsofphp\/php-cs-fixer": "^3.4.0",
-		"helmich\/typo3-typoscript-lint": "^2.5.2",
-		"jangregor\/phpstan-prophecy": "^1.0.0",
-		"phpstan\/extension-installer": "^1.1.0",
-		"phpstan\/phpstan": "^1.6.2",
-		"saschaegerer\/phpstan-typo3": "^1.1.2",
-		"seld\/jsonlint": "^1.9.0",
-		"seregazhuk\/php-watcher": "^0.5.2",
-		"squizlabs\/php_codesniffer": "^3.6.2",
-		"ssch\/typo3-rector": "^1",
-		"symfony\/yaml": "^4.4.29 || ^5.3.6 || ^6.0",
-		"typo3\/tailor": "^1.5"
+		"ergebnis/composer-normalize": "^2.19.0",
+		"friendsofphp/php-cs-fixer": "^3.4.0",
+		"helmich/typo3-typoscript-lint": "^2.5.2",
+		"jangregor/phpstan-prophecy": "^1.0.0",
+		"phpstan/extension-installer": "^1.1.0",
+		"phpstan/phpstan": "^1.6.2",
+		"saschaegerer/phpstan-typo3": "^1.1.2",
+		"seld/jsonlint": "^1.9.0",
+		"seregazhuk/php-watcher": "^0.5.2",
+		"squizlabs/php_codesniffer": "^3.6.2",
+		"ssch/typo3-rector": "^1",
+		"symfony/yaml": "^4.4.29 || ^5.3.6 || ^6.0",
+		"typo3/tailor": "^1.5"
 	},
 	"autoload": {
 		"psr-4": {
-			"Jpmschuler\\TvplusContentslide\\": "Classes\/"
+			"Jpmschuler\\TvplusContentslide\\": "Classes/"
 		}
 	},
 	"config": {
 		"allow-plugins": {
-			"typo3\/class-alias-loader": true,
-			"typo3\/cms-composer-installers": true,
-			"bk2k\/configuration-installer": true,
-			"ergebnis\/composer-normalize": true,
-			"phpstan\/extension-installer": true
+			"typo3/class-alias-loader": true,
+			"typo3/cms-composer-installers": true,
+			"bk2k/configuration-installer": true,
+			"ergebnis/composer-normalize": true,
+			"phpstan/extension-installer": true
 		},
-		"app-dir": ".Build",
-		"bin-dir": ".Build\/bin",
+		"bin-dir": ".Build/bin",
 		"sort-packages": true,
-		"vendor-dir": ".Build\/vendor"
+		"vendor-dir": ".Build/vendor"
 	},
 	"extra": {
 		"phpstan": {
 			"level": 5
 		},
-		"typo3\/cms": {
+		"typo3/cms": {
 			"app-dir": ".Build",
 			"extension-key": "tvplus_contentslide",
 			"updateLanguages": false,
-			"web-dir": ".Build\/public"
+			"web-dir": ".Build/public"
 		}
 	},
 	"scripts": {
@@ -78,9 +77,9 @@
 		],
 		"develop": [
 			"Composer\\Config::disableProcessTimeout",
-			".Build\/bin\/php-watcher foo --exec 'composer run develop:deploy' --signal SIGTERM --ignore .Build --ext=php,yaml,html,txt,typoscript,css,js,xlf"
+			".Build/bin/php-watcher foo --exec 'composer run develop:deploy' --signal SIGTERM --ignore .Build --ext=php,yaml,html,txt,typoscript,css,js,xlf"
 		],
-		"develop:deploy": "[ -f .\/.deploy.sh ] && .\/.deploy.sh",
+		"develop:deploy": "[ -f ./.deploy.sh ] && ./.deploy.sh",
 		"git:precommit": [
 			"echo 'running precommit checks...'",
 			"@lint:php:onlyerrors",
@@ -97,17 +96,33 @@
 		"lint:php": "find *.php Classes Configuration Tests -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l",
 		"lint:php-cs-fixer": "php-cs-fixer fix",
 		"lint:php-cs-fixer:dry-run": "php-cs-fixer fix --dry-run --using-cache=no --diff",
-		"lint:php-cs-fixer:dry-run:onlyerrors": "php-cs-fixer fix --dry-run --using-cache=no --diff > \/dev\/null",
-		"lint:php:onlyerrors": "find *.php Classes -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l > \/dev\/null",
+		"lint:php-cs-fixer:dry-run:onlyerrors": "php-cs-fixer fix --dry-run --using-cache=no --diff > /dev/null",
+		"lint:php:onlyerrors": "find *.php Classes -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l > /dev/null",
 		"lint:phpcbf": "phpcbf Classes",
 		"lint:phpcs": "@lint:phpcbf",
 		"lint:phpcs:dry-run": "phpcs Classes",
 		"lint:phpcs:dry-run:onlyerrors": "phpcs -n Classes",
-		"lint:phpstan": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> \/dev\/null || echo 5) --memory-limit=1G analyse",
-		"lint:phpstan:baseline": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> \/dev\/null || echo 5) --memory-limit=1G analyse --generate-baseline",
-		"lint:phpstan:ci": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> \/dev\/null || echo 5) --memory-limit=1G --no-progress analyse",
+		"lint:phpstan": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> /dev/null || echo 5) --memory-limit=1G analyse",
+		"lint:phpstan:baseline": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> /dev/null || echo 5) --memory-limit=1G analyse --generate-baseline",
+		"lint:phpstan:ci": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> /dev/null || echo 5) --memory-limit=1G --no-progress analyse",
 		"lint:typoscript": "typoscript-lint",
 		"post-update": "@post-install",
+		"prepare-release": [
+			"rm .gitignore",
+			"rm -rf .Build",
+			"rm -rf .ddev",
+			"rm -rf .github",
+			"rm -rf .gitlab",
+			"rm -rf Tests",
+			"rm -rf tools",
+			"rm .editorconfig",
+			"rm .gitattributes",
+			"rm .php-cs-fixer.php",
+			"rm .phpcs.xml",
+			"rm GitVersion.yml",
+			"rm rector.php",
+			"rm typoscript-lint.php"
+		],
 		"rector": [
 			"rector process --config=rector.php . ",
 			"@lint:php-cs-fixer"

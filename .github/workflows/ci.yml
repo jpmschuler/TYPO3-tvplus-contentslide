@@ -60,9 +60,9 @@ jobs:
       matrix:
         command:
           - "normalize"
-          - "lint:php-cs-fixer:dry-run"
-          - "lint:phpcs:dry-run"
-          - "lint:phpstan:ci"
+          - "run lint:php-cs-fixer:dry-run"
+          - "run lint:phpcs:dry-run"
+          - "run lint:phpstan:ci"
         php-version:
           - 7.4
 
