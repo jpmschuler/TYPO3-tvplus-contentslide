@@ -116,6 +116,9 @@ jobs:
           git push origin v${GitVersion_MajorMinorPatch}
           git push || true
       - name: "Publish new version to TER"
-        uses: tomasnorre/typo3-upload-ter@v2
-        with:
-          api-token: ${{ secrets.TYPO3_API_TOKEN }}
+        env:
+          API-TYPO3_API_TOKEN: ${{ secrets.TYPO3_API_TOKEN }}
+          EXTENSION_KEY: "tvplus_contentslide"
+        run: |
+          export CHANGELOG="$(git log ${GIT_LASTTAG}...HEAD --abbrev=0 --format="%s%n%b")"
+          .Build/bin/tailor ter:publish --comment="$CHANGELOG" ${GitVersion_MajorMinorPatch}
