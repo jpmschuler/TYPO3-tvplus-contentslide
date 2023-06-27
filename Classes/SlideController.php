@@ -183,7 +183,7 @@ class SlideController extends AbstractPlugin
      *
      * @return bool true, if EXT:templavoilaplus has version >=8
      */
-    public static function checkForModernTVP()
+    public static function checkForModernTVP(): bool
     {
         if (class_exists(ApiService::class)) {
             return true;
@@ -199,7 +199,7 @@ class SlideController extends AbstractPlugin
      *
      * @return string The contents of the field
      */
-    protected function getPageFlexValue($page, $field): string
+    protected function getPageFlexValue(array $page, string $field): string
     {
         $xml = GeneralUtility::xml2array($page['tx_templavoilaplus_flex']);
         if (static::checkForModernTVP()) {
