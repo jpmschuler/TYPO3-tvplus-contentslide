@@ -182,7 +182,7 @@ class SlideController extends AbstractPlugin
         $combinedMappingConfigurationIdentifier = $mapData;
         // Find DS and Template in root line IF there is no Data Structure set for the current page:
         if (!$combinedMappingConfigurationIdentifier) {
-            $rootLine = $apiService->getBackendRootline($page['uid']);
+            $rootLine = $apiService->getBackendRootline($page['uid'] ?? 0);
             $combinedMappingConfigurationIdentifier = $apiService->getMapIdentifierFromRootline($rootLine);
             if (!$combinedMappingConfigurationIdentifier) {
                 return '';
