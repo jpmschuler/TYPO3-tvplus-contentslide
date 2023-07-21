@@ -202,7 +202,7 @@ class SlideController extends AbstractPlugin
             $langChildren = 0;
             $langDisable = 0;
         }
-        $translatedLanguagesArr = $this->getAvailableLanguages($page['uid']);
+        $translatedLanguagesArr = $this->getAvailableLanguages($page['uid'] ?? null);
         $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language');
         $tryLang = $languageAspect->getContentId();
         $tryLangArr = $this->languageFallback;
