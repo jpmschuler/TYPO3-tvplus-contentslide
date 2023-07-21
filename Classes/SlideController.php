@@ -32,7 +32,6 @@
 namespace Jpmschuler\TvplusContentslide;
 
 use Tvp\TemplaVoilaPlus\Domain\Model\Configuration\DataConfiguration;
-use Tvp\TemplaVoilaPlus\Domain\Model\DataStructure;
 use Tvp\TemplaVoilaPlus\Service\ApiService;
 use Tvp\TemplaVoilaPlus\Utility\ApiHelperUtility;
 use TYPO3\CMS\Core\Context\Context;
