@@ -35,7 +35,6 @@ use Tvp\TemplaVoilaPlus\Domain\Model\Configuration\DataConfiguration;
 use Tvp\TemplaVoilaPlus\Domain\Model\DataStructure;
 use Tvp\TemplaVoilaPlus\Service\ApiService;
 use Tvp\TemplaVoilaPlus\Utility\ApiHelperUtility;
-use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\FrontendGroupRestriction;
@@ -103,7 +102,7 @@ class SlideController extends AbstractPlugin
         $tempLanguageFallback = $this->cObj->stdWrap($conf['languageFallback'] ?? '', $conf['languageFallback.'] ?? []);
         $this->languageFallback = GeneralUtility::intExplode(',', $tempLanguageFallback ?? '');
         foreach ($rootLine as $page) {
-            $pageRepository = static::getPageRepository();
+            $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
             $page = $pageRepository->getPage($page['uid']);
             $value = $this->getPageFlexValue($page, $field);
             if ($value && $recordsFromTable) {
@@ -153,7 +152,7 @@ class SlideController extends AbstractPlugin
         $loadDB->start($uidList, $recordTable);
         foreach ($loadDB->tableArray as $table => $tableData) {
             if (is_array($GLOBALS['TCA'][$table] ?? null)) {
-                $pageRepository = static::getPageRepository();
+                $pageRepository = GeneralUtility::makeInstance(PageRepository::class)
                 $loadDB->additionalWhere[$table] = $pageRepository->enableFields($table);
             }
         }
@@ -166,31 +165,6 @@ class SlideController extends AbstractPlugin
         return $result;
     }
 
-    public static function getPageRepository()
-    {
-        if (class_exists(PageRepository::class)) {
-            return GeneralUtility::makeInstance(PageRepository::class);
-        }
-        if (class_exists(\TYPO3\CMS\Frontend\Page\PageRepository::class)) {
-            // TYPO3 <= 9LTS
-            return GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
-        }
-        return null;
-    }
-
-    /**
-     * check if TVP-v8 or v7
-     *
-     * @return bool true, if EXT:templavoilaplus has version >=8
-     */
-    public static function checkForModernTVP(): bool
-    {
-        if (class_exists(ApiService::class)) {
-            return true;
-        }
-        return false;
-    }
-
     /**
      * This method returns the contents of the flex-field given.
      *
@@ -201,46 +175,26 @@ class SlideController extends AbstractPlugin
      */
     protected function getPageFlexValue(array $page, string $field): string
     {
-        $xml = GeneralUtility::xml2array($page['tx_templavoilaplus_flex']);
-        if (static::checkForModernTVP()) {
-            $apiService = GeneralUtility::makeInstance(ApiService::class, 'pages');
-            $combinedMappingConfigurationIdentifier = $page['tx_templavoilaplus_map'];
-            // Find DS and Template in root line IF there is no Data Structure set for the current page:
+        $flexData = $page['tx_templavoilaplus_flex'] ?? '';
+        $mapData = $page['tx_templavoilaplus_map'] ?? '';
+        $xml = GeneralUtility::xml2array($flexData);
+        $apiService = GeneralUtility::makeInstance(ApiService::class, 'pages');
+        $combinedMappingConfigurationIdentifier = $mapData;
+        // Find DS and Template in root line IF there is no Data Structure set for the current page:
+        if (!$combinedMappingConfigurationIdentifier) {
+            $rootLine = $apiService->getBackendRootline($page['uid']);
+            $combinedMappingConfigurationIdentifier = $apiService->getMapIdentifierFromRootline($rootLine);
             if (!$combinedMappingConfigurationIdentifier) {
-                $rootLine = $apiService->getBackendRootline($page['uid']);
-                $combinedMappingConfigurationIdentifier = $apiService->getMapIdentifierFromRootline($rootLine);
-                if (!$combinedMappingConfigurationIdentifier) {
-                    return '';
-                }
+                return '';
             }
-            $mappingConfiguration = ApiHelperUtility::getMappingConfiguration($combinedMappingConfigurationIdentifier);
-            $combinedDataStructureIdentifier = $mappingConfiguration->getCombinedDataStructureIdentifier();
-
-            if (class_exists(DataConfiguration::class)) {
-                // EXT:templavoilaplus > 8.0.3
-                /** @var DataConfiguration $dsModel */
-                $dsModel = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier);
-                $ds = $dsModel->getDataStructure();
-            } elseif (class_exists(DataStructure::class)) {
-                // EXT:templavoilaplus > 7.9.99 <= 8.0.3
-                /** @var DataStructure $dsModel */
-                $dsModel = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier);
-                $ds = $dsModel->getDataStructureArray();
-            } else {
-                $ds = null;
-            }
-        } else {
-            // EXT:templavoilaplus <= 7.3.x
-            $flexFormTools = GeneralUtility::makeInstance(FlexFormTools::class);
-            $ds = $flexFormTools->parseDataStructureByIdentifier(
-                $flexFormTools->getDataStructureIdentifier(
-                    $GLOBALS['TCA']['pages']['columns']['tx_templavoilaplus_flex'],
-                    'pages',
-                    'tx_templavoilaplus_flex',
-                    $page
-                )
-            );
         }
+        $mappingConfiguration = ApiHelperUtility::getMappingConfiguration($combinedMappingConfigurationIdentifier);
+        $combinedDataStructureIdentifier = $mappingConfiguration->getCombinedDataStructureIdentifier();
+
+        /** @var DataConfiguration $dsModel */
+        $dsModel = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier);
+        $ds = $dsModel->getDataStructure();
+
         if (is_array($ds) && is_array($ds['meta'])) {
             $langChildren = (int)$ds['meta']['langChildren'];
             $langDisable = (int)$ds['meta']['langDisable'];
