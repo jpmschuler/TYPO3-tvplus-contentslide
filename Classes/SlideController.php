@@ -152,7 +152,7 @@ class SlideController extends AbstractPlugin
         $loadDB->start($uidList, $recordTable);
         foreach ($loadDB->tableArray as $table => $tableData) {
             if (is_array($GLOBALS['TCA'][$table] ?? null)) {
-                $pageRepository = GeneralUtility::makeInstance(PageRepository::class)
+                $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
                 $loadDB->additionalWhere[$table] = $pageRepository->enableFields($table);
             }
         }
