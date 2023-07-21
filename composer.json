@@ -15,7 +15,7 @@
 	"require": {
 		"php": "^8.0",
 		"ext-pdo": "*",
-		"templavoilaplus/templavoilaplus": "^8.0.0 || 8.x-dev || dev-main || *@alpha",
+		"templavoilaplus/templavoilaplus": "*@alpha || ^8.0.0 || 8.x-dev || dev-main",
 		"typo3/cms-backend": "^v11.5.10",
 		"typo3/cms-core": "^v11.5.10",
 		"typo3/cms-frontend": "^v11.5.10"
@@ -53,9 +53,6 @@
 		"vendor-dir": ".Build/vendor"
 	},
 	"extra": {
-		"phpstan": {
-			"level": 5
-		},
 		"typo3/cms": {
 			"app-dir": ".Build",
 			"extension-key": "tvplus_contentslide",
@@ -102,9 +99,9 @@
 		"lint:phpcs": "@lint:phpcbf",
 		"lint:phpcs:dry-run": "phpcs Classes",
 		"lint:phpcs:dry-run:onlyerrors": "phpcs -n Classes",
-		"lint:phpstan": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> /dev/null || echo 5) --memory-limit=1G analyse",
-		"lint:phpstan:baseline": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> /dev/null || echo 5) --memory-limit=1G analyse --generate-baseline",
-		"lint:phpstan:ci": "phpstan --level=$(composer config extra.codequality.phpstan-level 2> /dev/null || echo 5) --memory-limit=1G --no-progress analyse",
+		"lint:phpstan": "phpstan --level=5 --memory-limit=1G analyse",
+		"lint:phpstan:baseline": "phpstan --level=5 --memory-limit=1G analyse --generate-baseline",
+		"lint:phpstan:ci": "phpstan --level=5 --memory-limit=1G --no-progress analyse",
 		"lint:typoscript": "typoscript-lint",
 		"post-update": "@post-install",
 		"prepare-release": [

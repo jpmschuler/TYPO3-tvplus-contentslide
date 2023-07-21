@@ -11,7 +11,7 @@ jobs:
   php-lint:
     if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, '[RELEASE]')"
     name: "PHP linter"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: "Checkout"
         uses: actions/checkout@v3
@@ -20,7 +20,7 @@ jobs:
         with:
           php-version: "${{ matrix.php-version }}"
           coverage: none
-          tools: composer:v2.4
+          tools: composer:v2.5
       - name: "Run PHP lint"
         run: "composer lint:php"
     strategy:
@@ -31,7 +31,7 @@ jobs:
   php-codequality:
     if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, '[RELEASE]')"
     name: "Code quality checks"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: "Checkout"
         uses: actions/checkout@v3
@@ -40,7 +40,7 @@ jobs:
         with:
           php-version: "${{ matrix.php-version }}"
           coverage: none
-          tools: composer:v2.4
+          tools: composer:v2.5
       - name: "Show Composer version"
         run: composer --version
       - name: "Cache dependencies installed with composer"
@@ -66,7 +66,7 @@ jobs:
 
   calculate-version:
     name: "calculating next SemVer"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [ php-lint,php-codequality ]
     outputs:
       majorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }} # To use an output in another job, you have to map it to a job output.
@@ -101,7 +101,7 @@ jobs:
         uses: php-actions/composer@v6
         with:
           args: --ignore-platform-req=ext-gd --ignore-platform-req=ext-pcntl --ignore-platform-req=ext-zip
-          php_version: "7.4"
+          php_version: "8.1"
       - name: "Create new tag, updating optional version files"
         run: |
           export GIT_LASTTAG="$(git describe --tags --abbrev=0)"
