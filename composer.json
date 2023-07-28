@@ -16,9 +16,9 @@
 		"php": "^8.0",
 		"ext-pdo": "*",
 		"templavoilaplus/templavoilaplus": "*@alpha || ^8.0.0 || 8.x-dev || dev-main",
-		"typo3/cms-backend": "^v11.5.10",
-		"typo3/cms-core": "^v11.5.10",
-		"typo3/cms-frontend": "^v11.5.10"
+		"typo3/cms-backend": "^v11.5.10 || ^v12.4.4",
+		"typo3/cms-core": "^v11.5.10 || ^v12.4.4",
+		"typo3/cms-frontend": "^v11.5.10 || ^v12.4.4"
 	},
 	"require-dev": {
 		"ergebnis/composer-normalize": "^2.19.0",
@@ -29,7 +29,6 @@
 		"phpstan/phpstan": "^1.6.2",
 		"saschaegerer/phpstan-typo3": "^1.1.2",
 		"seld/jsonlint": "^1.9.0",
-		"seregazhuk/php-watcher": "dev-master",
 		"squizlabs/php_codesniffer": "^3.6.2",
 		"ssch/typo3-rector": "^1",
 		"symfony/yaml": "^4.4.29 || ^5.3.6 || ^6.0",
