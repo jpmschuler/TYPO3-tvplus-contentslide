@@ -12,13 +12,13 @@ This extension allows you to inherit the content of a TemplaVoilaPlus content el
 
 # Compatibility
 As this extension has a quite limited set of features, there will only be seldom updates.
-The current version `v11.0.6` is basically compatible with
-- TYPO3: 9LTS, 10LTS, 11LTS
-- PHP: ^7.3 || ^8.0
-- EXT:templavoilaplus: v7 || v8
+The current version `v13` is basically compatible with
+- TYPO3: 12LTS, 13LTS
+- PHP: ^8.1
+- EXT:templavoilaplus: ^12.0.4
 
 # Installation
-Either install `EXT:tvplus_contentslide` via TER (Extension Manager) or via composer `jpmschuler/tvplus-contentslide`
+`composer req jpmschuler/tvplus-contentslide`
 
 # How to use
 
