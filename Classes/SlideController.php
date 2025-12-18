@@ -41,12 +41,15 @@ use TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer;
 use TYPO3\CMS\Core\Database\RelationHandler;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
+use TYPO3\CMS\Core\Localization\Locales;
+use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
-use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
-class SlideController extends AbstractPlugin
+class SlideController
 {
     /**
      * @var array
@@ -55,11 +58,50 @@ class SlideController extends AbstractPlugin
     public $prefixId = 'SlideController';
     public $scriptRelPath = 'Classes/SlideController.php';
     public $extKey = 'tvplus_contentslide';
+    protected ?ContentObjectRenderer $cObj = null;
+
+    /**
+     * Property for accessing TypoScriptFrontendController centrally
+     *
+     * @var TypoScriptFrontendController
+     */
+    protected $frontendController;
+
+    /**
+     * @var MarkerBasedTemplateService
+     */
+    protected $templateService;
+    /**
+     * Class Constructor (true constructor)
+     * Initializes $this->piVars if $this->prefixId is set to any value
+     * Will also set $this->LLkey based on the config.language setting.
+     *
+     * @param null $_ unused,
+     */
+    public function __construct($_ = null, ?TypoScriptFrontendController $frontendController = null)
+    {
+        trigger_error(
+            'AbstractPlugin "pibase" is deprecated since TYPO3 v12.4 and will be removed with v13.0',
+            E_USER_DEPRECATED
+        );
+        $this->frontendController = $frontendController ?: $GLOBALS['TSFE'];
+        $this->templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
+        $this->LLkey = $this->frontendController->getLanguage()->getTypo3Language();
+    }
 
     /**
      * @var bool true
      */
     public $pi_checkCHash = true;
+
+    /**
+     * This setter is called when the plugin is called from UserContentObject (USER)
+     * via ContentObjectRenderer->callUserFunction().
+     */
+    public function setContentObjectRenderer(ContentObjectRenderer $cObj): void
+    {
+        $this->cObj = $cObj;
+    }
 
     /**
      * The main method getting called as pre/postUserFunc from the 'source' property of the RECORDS TS cObject
