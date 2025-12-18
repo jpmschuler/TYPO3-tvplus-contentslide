@@ -194,7 +194,7 @@ class SlideController extends AbstractPlugin
         $dsModel = ApiHelperUtility::getDataStructure($combinedDataStructureIdentifier);
         $ds = $dsModel->getDataStructure();
 
-        if (is_array($ds) && is_array($ds['meta'])) {
+        if (is_array($ds['meta'] ?? null)) {
             $langChildren = (int)$ds['meta']['langChildren'];
             $langDisable = (int)$ds['meta']['langDisable'];
         } else {
