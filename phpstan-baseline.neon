@@ -1,6 +1,16 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Call to an undefined method TYPO3\\\\CMS\\\\Core\\\\Site\\\\Entity\\\\SiteLanguage\\:\\:getTwoLetterIsoCode\\(\\)\\.$#"
+			count: 1
+			path: Classes/SlideController.php
+
+		-
+			message: "#^Constructor of class Jpmschuler\\\\TvplusContentslide\\\\SlideController has an unused parameter \\$_\\.$#"
+			count: 1
+			path: Classes/SlideController.php
+
+		-
 			message: "#^If condition is always true\\.$#"
 			count: 1
 			path: Classes/SlideController.php

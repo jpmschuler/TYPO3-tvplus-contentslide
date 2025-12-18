@@ -45,6 +45,7 @@ use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
+use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -73,19 +74,13 @@ class SlideController
     /**
      * Class Constructor (true constructor)
      * Initializes $this->piVars if $this->prefixId is set to any value
-     * Will also set $this->LLkey based on the config.language setting.
      *
      * @param null $_ unused,
      */
     public function __construct($_ = null, ?TypoScriptFrontendController $frontendController = null)
     {
-        trigger_error(
-            'AbstractPlugin "pibase" is deprecated since TYPO3 v12.4 and will be removed with v13.0',
-            E_USER_DEPRECATED
-        );
         $this->frontendController = $frontendController ?: $GLOBALS['TSFE'];
         $this->templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
-        $this->LLkey = $this->frontendController->getLanguage()->getTypo3Language();
     }
 
     /**
@@ -188,7 +183,6 @@ class SlideController
         $result = '';
 
         $loadDB = GeneralUtility::makeInstance(RelationHandler::class);
-        $loadDB->setFetchAllFields(true);
         $loadDB->start($uidList, $recordTable);
         foreach ($loadDB->tableArray as $table => $tableData) {
             if (is_array($GLOBALS['TCA'][$table] ?? null)) {
@@ -326,7 +320,11 @@ class SlideController
 
         foreach ($availableLanguages as $language) {
             $languageId = $language->getLanguageId();
-            $isoCode = $language->getTwoLetterIsoCode();
+            if (version_compare(VersionNumberUtility::getCurrentTypo3Version(), '12.4', '>=')) {
+                $isoCode = $language->getLocale()->getLanguageCode();
+            } else {
+                $isoCode = $language->getTwoLetterIsoCode();
+            }
             if ($languageId > 0 && static::checkIfPageHasTranslation($id, $languageId)) {
                 $output[$languageId]['ISOcode'] = $isoCode;
             }
