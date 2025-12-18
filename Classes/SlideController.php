@@ -41,7 +41,6 @@ use TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer;
 use TYPO3\CMS\Core\Database\RelationHandler;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
-use TYPO3\CMS\Core\Localization\Locales;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -344,18 +343,13 @@ class SlideController
         $queryBuilder->getRestrictions()->removeByType(FrontendGroupRestriction::class);
         $result = $queryBuilder
             ->count('uid')
-            ->from('pages')
-            ->where(
-                $queryBuilder->expr()->eq(
-                    $GLOBALS['TCA']['pages']['ctrl']['transOrigPointerField'],
-                    $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
-                ),
-                $queryBuilder->expr()->eq(
-                    $GLOBALS['TCA']['pages']['ctrl']['languageField'],
-                    $queryBuilder->createNamedParameter($lid, \PDO::PARAM_INT)
-                )
-            )
-            ->execute()
+            ->from('pages')->where($queryBuilder->expr()->eq(
+                $GLOBALS['TCA']['pages']['ctrl']['transOrigPointerField'],
+                $queryBuilder->createNamedParameter($pid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)
+            ), $queryBuilder->expr()->eq(
+                $GLOBALS['TCA']['pages']['ctrl']['languageField'],
+                $queryBuilder->createNamedParameter($lid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)
+            ))->executeQuery()
             ->fetchOne();
         return $result > 0;
     }

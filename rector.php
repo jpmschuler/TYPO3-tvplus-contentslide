@@ -15,8 +15,6 @@ use Ssch\TYPO3Rector\Set\Typo3SetList;
 $optionalPaths = [__DIR__ . '/ext_localconf.php'];
 $relevantPaths = [
     __DIR__ . '/Classes',
-    __DIR__ . '/Configuration',
-    __DIR__ . '/Tests',
 ];
 foreach ($optionalPaths as $optionalPath) {
     if (file_exists($optionalPath)) {
