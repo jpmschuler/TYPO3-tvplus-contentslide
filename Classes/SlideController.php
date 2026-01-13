@@ -215,12 +215,7 @@ class SlideController extends AbstractPlugin
                 $lKey = 'lDEF';
                 $vKey = 'vDEF';
             }
-            if (
-                is_array($xml)
-                && is_array($xml['data'])
-                && is_array($xml['data']['sDEF'])
-                && is_array($xml['data']['sDEF'][$lKey])
-            ) {
+            if (is_array($xml['data']['sDEF'][$lKey] ?? false)) {
                 return $this->getSubKey(
                     $xml['data']['sDEF'][$lKey],
                     GeneralUtility::trimExplode(',', $field, true),
